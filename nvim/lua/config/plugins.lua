@@ -23,6 +23,7 @@ return {
   {
     'echasnovski/mini.nvim',
     version = false,
+    lazy    = false,  -- VimEnter前に確実にロードする（mini.sessionsのautoread用）
     config = function()
       require('mini.trailspace').setup()
       require('config.session')

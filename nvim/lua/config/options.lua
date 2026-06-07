@@ -56,7 +56,8 @@ vim.opt.inccommand = "split"   -- :%s の置換プレビューをsplitウィン�
 -- shada: セッション間で保持する情報を設定
 -- ! グローバル変数, '100 最近100ファイルのマーク, <50 レジスタ最大50行,
 -- s10 最大10KBのアイテム, h hlsearch無効化, % バッファリスト保存
-vim.opt.shada = "!,'100,<50,s10,h,%"
+-- % を除外：起動時のバッファリスト復元を無効化（mini.sessions の autoread と競合するため）
+vim.opt.shada = "!,'100,<50,s10,h"
 
 
 vim.opt.shell = "powershell"
