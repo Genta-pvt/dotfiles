@@ -25,13 +25,17 @@ vim.api.nvim_create_autocmd('User', {
 
     -- グローバル設定
     vim.fn['skkeleton#config']({
-      globalDictionaries = { '~/.skk/SKK-JISYO.L' }, -- SKK 辞書ファイル
-      eggLikeNewline     = true,                      -- 変換確定後に改行しない（egg ライク）
-      kanaTable          = 'azik',                    -- 上で登録した AZIK テーブルを使用
+      globalDictionaries = { '~/.skk/SKK-JISYO.L' },                   -- SKK 辞書ファイル
+      eggLikeNewline     = true,                                        -- 変換確定後に改行しない（egg ライク）
+      kanaTable          = 'azik',                                      -- 上で登録した AZIK テーブルを使用
+      sources            = { 'skk_dictionary', 'google_japanese_input' }, -- SKK 辞書 + Google 変換を併用
+      keepState          = true,                                          -- Insert モードを抜けても IME 有効状態を維持
     })
   end,
 })
 
--- Insert / Command モードで <C-j> により IME のオン・オフをトグルする
-vim.keymap.set('i', '<C-j>', '<Plug>(skkeleton-toggle)', { desc = 'skkeleton: IME トグル' })
-vim.keymap.set('c', '<C-j>', '<Plug>(skkeleton-toggle)', { desc = 'skkeleton: IME トグル' })
+-- <C-j> で有効化、<C-l> で無効化（トグルではなくステートレスに操作する）
+vim.keymap.set('i', '<C-j>', '<Plug>(skkeleton-enable)',  { desc = 'skkeleton: IME 有効化' })
+vim.keymap.set('c', '<C-j>', '<Plug>(skkeleton-enable)',  { desc = 'skkeleton: IME 有効化' })
+vim.keymap.set('i', '<C-l>', '<Plug>(skkeleton-disable)', { desc = 'skkeleton: IME 無効化' })
+vim.keymap.set('c', '<C-l>', '<Plug>(skkeleton-disable)', { desc = 'skkeleton: IME 無効化' })
