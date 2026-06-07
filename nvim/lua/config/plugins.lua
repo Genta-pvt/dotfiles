@@ -25,12 +25,7 @@ return {
     version = false,
     config = function()
       require('mini.trailspace').setup()
-      -- セッション管理：終了時に自動保存、起動時は手動で読み込む
-      require('mini.sessions').setup({
-        autowrite = true,
-        directory  = vim.fn.stdpath('data') .. '/sessions',
-        file       = '',
-      })
+      require('config.session')
     end,
   },
 
