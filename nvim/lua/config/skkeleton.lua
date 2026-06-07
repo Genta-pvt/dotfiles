@@ -19,7 +19,6 @@ vim.api.nvim_create_autocmd('User', {
       [' '] = 'henkanFirst', -- スペースで変換開始（▽モード → ▼モード）
       ['/'] = 'abbrev',      -- 欧文変換モード（/で英字変換開始）
       [';'] = 'henkanPoint', -- 送り仮名マーカー（l→っ 移行により ; が解放された）
-      q     = 'katakana',    -- カタカナモード（q 単独は AZIK 拡張の後置キーのみ使用）
       jj    = 'escape',      -- jj で skkeleton を無効化（j 単独は AZIK の じ行に使用済みのため衝突しない）
     })
 
