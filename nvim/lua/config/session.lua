@@ -6,7 +6,7 @@ require('mini.sessions').setup({
   autowrite = true,                              -- 終了時に現在のセッションを自動保存
   autoread  = true,                              -- 起動時に最新のセッションを自動復元
   directory = vim.fn.stdpath('data') .. '/sessions', -- グローバルセッションの保存先
-  file      = '',                                -- ローカルセッションは無効（グローバルに統一）
+  file      = 'Session.vim',                     -- ローカルセッション（プロジェクトルートに配置）
 })
 
 -- -------------------------------------------------------
