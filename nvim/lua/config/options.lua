@@ -1,25 +1,59 @@
+-- ============================================================
+-- エディタオプション設定
+-- ============================================================
+
+-- -------------------------------------------------------
+-- クリップボード
+-- -------------------------------------------------------
+
+-- システムクリップボードと連携（unnamed: "*レジスタ, unnamedplus: "+レジスタ）
 vim.opt.clipboard:append('unnamedplus,unnamed')
 
--- タブ関係
-vim.opt.tabstop = 2
-vim.opt.shiftwidth = 2
-vim.opt.expandtab = true
-vim.opt.shiftround = true
+-- -------------------------------------------------------
+-- インデント / タブ
+-- -------------------------------------------------------
+
+vim.opt.tabstop    = 2      -- タブ幅（表示上）
+vim.opt.shiftwidth = 2      -- 自動インデント幅
+vim.opt.expandtab  = true   -- タブをスペースに展開
+vim.opt.shiftround = true   -- インデントをshiftwidthの倍数に丸める
+
+-- -------------------------------------------------------
+-- ファイル形式・エンコード
+-- -------------------------------------------------------
 
 vim.opt.fileencodings = "ucs-bom,utf-8,iso-2022-jp-3,euc-jp,cp932"
-vim.opt.fileformats = "unix,dos,mac"
+vim.opt.fileformats   = "unix,dos,mac"
 
-vim.opt.splitright = true
-vim.opt.splitbelow = true
+-- -------------------------------------------------------
+-- ウィンドウ分割
+-- -------------------------------------------------------
 
-vim.opt.scrolloff = 3
-vim.opt.number = true
-vim.opt.cursorline = true
-vim.opt.termguicolors = true
+vim.opt.splitright = true   -- 縦分割を右側に開く
+vim.opt.splitbelow = true   -- 横分割を下側に開く
 
+-- -------------------------------------------------------
+-- 表示
+-- -------------------------------------------------------
+
+vim.opt.scrolloff    = 3     -- カーソル上下に常に3行余白を確保
+vim.opt.number       = true  -- 行番号を表示
+vim.opt.cursorline   = true  -- カーソル行をハイライト
+vim.opt.termguicolors = true -- 24ビットカラーを有効化
+
+-- -------------------------------------------------------
 -- 検索・置換
-vim.opt.ignorecase = true
-vim.opt.smartcase = true
-vim.opt.inccommand = "split"
+-- -------------------------------------------------------
 
+vim.opt.ignorecase = true      -- 大文字小文字を区別しない
+vim.opt.smartcase  = true      -- 大文字が含まれる場合は区別する
+vim.opt.inccommand = "split"   -- :%s の置換プレビューをsplitウィンドウで表示
+
+-- -------------------------------------------------------
+-- セッション・履歴
+-- -------------------------------------------------------
+
+-- shada: セッション間で保持する情報を設定
+-- ! グローバル変数, '100 最近100ファイルのマーク, <50 レジスタ最大50行,
+-- s10 最大10KBのアイテム, h hlsearch無効化, % バッファリスト保存
 vim.opt.shada = "!,'100,<50,s10,h,%"
