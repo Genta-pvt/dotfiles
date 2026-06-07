@@ -21,3 +21,5 @@ vim.opt.termguicolors = true
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
 vim.opt.inccommand = "split"
+
+vim.opt.shada = "!,'100,<50,s10,h,%"
