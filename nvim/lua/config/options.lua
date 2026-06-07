@@ -41,6 +41,9 @@ vim.opt.number       = true  -- 行番号を表示
 vim.opt.cursorline   = true  -- カーソル行をハイライト
 vim.opt.termguicolors = true -- 24ビットカラーを有効化
 
+-- カラースキームを設定（mini.nvim が提供する minischeme を使用）
+vim.cmd.colorscheme('minischeme')
+
 -- -------------------------------------------------------
 -- 検索・置換
 -- -------------------------------------------------------
