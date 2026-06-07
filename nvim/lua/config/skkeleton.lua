@@ -13,6 +13,16 @@ vim.api.nvim_create_autocmd('User', {
     local azik = require('config.skkeleton_azik')
     vim.fn['skkeleton#register_kanatable']('azik', azik, true)
 
+    -- function マッピング（azik テーブルは create=true で空生成のためデフォルト rom の
+    -- function が引き継がれない。必要なものをここで明示的に追加する）
+    vim.fn['skkeleton#register_kanatable']('azik', {
+      [' '] = 'henkanFirst', -- スペースで変換開始（▽モード → ▼モード）
+      ['/'] = 'abbrev',      -- 欧文変換モード（/で英字変換開始）
+      [';'] = 'henkanPoint', -- 送り仮名マーカー（l→っ 移行により ; が解放された）
+      q     = 'katakana',    -- カタカナモード（q 単独は AZIK 拡張の後置キーのみ使用）
+      jj    = 'escape',      -- jj で skkeleton を無効化（j 単独は AZIK の じ行に使用済みのため衝突しない）
+    })
+
     -- グローバル設定
     vim.fn['skkeleton#config']({
       globalDictionaries = { '~/.skk/SKK-JISYO.L' }, -- SKK 辞書ファイル
