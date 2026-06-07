@@ -57,3 +57,11 @@ vim.opt.inccommand = "split"   -- :%s の置換プレビューをsplitウィン�
 -- ! グローバル変数, '100 最近100ファイルのマーク, <50 レジスタ最大50行,
 -- s10 最大10KBのアイテム, h hlsearch無効化, % バッファリスト保存
 vim.opt.shada = "!,'100,<50,s10,h,%"
+
+
+vim.opt.shell = "powershell"
+vim.opt.shellcmdflag = "-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command"
+vim.opt.shellquote = ""
+vim.opt.shellxquote = ""
+vim.opt.shellpipe = "| Out-File -Encoding UTF8 %s"
+vim.opt.shellredir = "| Out-File -Encoding UTF8 %s"

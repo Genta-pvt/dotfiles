@@ -28,4 +28,7 @@ return {
     end,
   },
 
+  { 'vim-denops/denops.vim' },
+{ 'vim-skk/skkeleton' },
+
 }
