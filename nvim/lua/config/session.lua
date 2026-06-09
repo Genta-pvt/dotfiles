@@ -1,12 +1,20 @@
 -- ============================================================
 -- セッション管理設定（mini.sessions）
 -- ============================================================
+-- グローバルセッションの保存先は stdpath('data')/sessions であり、
+-- リポジトリ外（OS 標準のデータディレクトリ）に保存される。
+--   Windows : %LOCALAPPDATA%\nvim-data\sessions
+--   Linux   : ~/.local/share/nvim/sessions
+-- そのため、複数環境でこのリポジトリを共有しても干渉しない。
+--
+-- ローカルセッション（Session.vim）は cwd に生成されるため、
+-- リポジトリ内で誤って作成された場合に備え .gitignore で除外している。
 
 require('mini.sessions').setup({
-  autowrite = true,                              -- 終了時に現在のセッションを自動保存
-  autoread  = true,                              -- 起動時に最新のセッションを自動復元
-  directory = vim.fn.stdpath('data') .. '/sessions', -- グローバルセッションの保存先
-  file      = 'Session.vim',                     -- ローカルセッション（プロジェクトルートに配置）
+  autowrite = true,                                   -- 終了時に現在のセッションを自動保存
+  autoread  = true,                                   -- 起動時に最新のセッションを自動復元
+  directory = vim.fn.stdpath('data') .. '/sessions',  -- グローバルセッション保存先（リポジトリ外）
+  file      = 'Session.vim',                          -- ローカルセッション（cwd に配置）
 })
 
 -- -------------------------------------------------------
