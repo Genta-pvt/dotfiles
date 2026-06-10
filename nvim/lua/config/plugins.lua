@@ -22,6 +22,7 @@ return {
   -- 軽量モジュール群。以下を有効化:
   --   mini.trailspace : 末尾空白の可視化・一括削除
   --   mini.sessions   : セッション保存・復元（config.session で設定）
+  --   mini.pick       : ファジーファインダー（:Pick コマンドで使用）
   --   minischeme      : カラースキーム（options.lua で colorscheme 指定）
   {
     'echasnovski/mini.nvim',
@@ -29,6 +30,7 @@ return {
     lazy    = false,  -- VimEnter 前に確実にロードする（mini.sessions の autoread 用）
     config = function()
       require('mini.trailspace').setup()
+      require('mini.pick').setup()
       require('config.session')
     end,
   },
