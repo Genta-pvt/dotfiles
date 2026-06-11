@@ -1,3 +1,7 @@
+-- リーダーキーをスペースに設定
+-- <Leader> を使うキーマップやプラグインの読み込みより前に定義する必要がある
+vim.g.mapleader = ' '
+
 -- lazy.nvim がなければ自動クローン
 local lazypath = vim.fn.stdpath('data') .. '/lazy/lazy.nvim'
 if not vim.uv.fs_stat(lazypath) then

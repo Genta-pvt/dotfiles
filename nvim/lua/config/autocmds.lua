@@ -70,3 +70,19 @@ vim.api.nvim_create_autocmd('BufLeave', {
     vim.cmd('colorscheme ' .. vim.g.colors_name)
   end,
 })
+
+-- -------------------------------------------------------
+-- draft_skk.md 専用: バッファローカルキーマップ
+-- -------------------------------------------------------
+-- 全文切り取りは他のファイルで誤爆すると痛い操作のため、
+-- 下書きバッファ（draft_skk.md）限定のバッファローカルマップにする
+
+vim.api.nvim_create_autocmd('BufEnter', {
+  group = vim.api.nvim_create_augroup('DraftSkkKeymap', { clear = true }),
+  callback = function(ev)
+    if not is_draft_skk(ev.buf) then return end
+    -- 全文をクリップボードへ切り取り（normal に留まる）
+    vim.keymap.set('n', '<Leader>j', 'ggdG',
+      { buffer = ev.buf, desc = '全文をクリップボードへ切り取り' })
+  end,
+})

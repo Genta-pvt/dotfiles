@@ -76,7 +76,14 @@ AZIK テーブルは `skkeleton-initialize-pre` イベントで `skkeleton#regis
 `draft_skk.md` という名前のファイルを日本語下書き用バッファとして使う運用がある。
 
 - `nvim/lua/config/autocmds.lua` — このバッファ滞在中のみ背景を透明化（BufEnter/BufLeave で切り替え）
-- `nvim/lua/config/keymaps.lua` — `<C-y>` で全バッファをクリップボードへ削除しインサートに戻る
+- `nvim/lua/config/autocmds.lua` — `<Leader>j` で全文をクリップボードへ切り取り（**バッファローカル**。誤爆防止のためこのバッファ限定）
+
+### 基本キーマップ
+
+リーダーキーはスペース（`init.lua` で `<Leader>` 使用箇所より前に定義）。
+
+- `jj`（インサート）— Esc
+- `<Leader>y`（ノーマル、グローバル）— 全文をクリップボードへヤンク（`:%y`、カーソル位置を保持）
 
 ### シェル設定
 
