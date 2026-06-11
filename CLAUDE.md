@@ -84,6 +84,8 @@ AZIK テーブルは `skkeleton-initialize-pre` イベントで `skkeleton#regis
 
 - `jj`（インサート）— Esc
 - `<Leader>y`（ノーマル、グローバル）— 全文をクリップボードへヤンク（`:%y`、カーソル位置を保持）
+- `<Leader>s`（ノーマル、グローバル）— `:SessionSelect`（セッションを選択して読み込み）
+- `<Leader>f`（ノーマル、グローバル）— `:Pick buffers`（バッファ一覧から選択）
 
 ### シェル設定
 
