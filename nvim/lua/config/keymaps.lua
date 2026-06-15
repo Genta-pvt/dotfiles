@@ -36,25 +36,5 @@ vim.keymap.set('n', '<C-s>', '<Cmd>silent! update | redraw<CR>',
 vim.keymap.set({ 'i', 'x' }, '<C-s>', '<Esc><Cmd>silent! update | redraw<CR>',
   { desc = '保存して Normal へ' })
 
--- go / gO: カーソル位置を保ったまま下/上に空行を挿入する（挿入モードに入らない）。
--- count 対応（3go で空行3つ）。unimpaired の ]<Space> / [<Space> と同等の操作。
--- ※ mini.basics は operatorfunc でドットリピート対応だが、ここでは挙動を単純化している
-local function put_empty_lines(above)
-  local count = vim.v.count1
-  local row, col = unpack(vim.api.nvim_win_get_cursor(0))
-  local insert_at = above and (row - 1) or row  -- 0-based の挿入位置
-  local blanks = {}
-  for _ = 1, count do
-    blanks[#blanks + 1] = ''
-  end
-  vim.api.nvim_buf_set_lines(0, insert_at, insert_at, false, blanks)
-  -- 上に挿入したときは元の行が下へずれるので、カーソルを元の行へ戻す
-  if above then
-    vim.api.nvim_win_set_cursor(0, { row + count, col })
-  end
-end
-
-vim.keymap.set('n', 'go', function() put_empty_lines(false) end,
-  { desc = 'カーソル下に空行を挿入' })
-vim.keymap.set('n', 'gO', function() put_empty_lines(true) end,
-  { desc = 'カーソル上に空行を挿入' })
+-- 空行挿入は Neovim 0.11 組み込みデフォルトの [<Space> / ]<Space>（上/下に空行、count 対応）に任せる。
+-- 自作 go / gO は同じく組み込みの gO（document symbol = 見出し目次）と衝突するため廃止した。
