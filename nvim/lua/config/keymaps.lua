@@ -30,11 +30,11 @@ vim.keymap.set('n', 'gV', '"g`[" . strpart(getregtype(), 0, 1) . "g`]"',
 
 -- <C-s>: どのモードからでも保存（変更があるときだけ書き込む :update）。
 -- Insert / Visual からは一度 Normal に戻ってから保存する。
+-- :update は書き込み時に「"file" 41L, 1234B written」を自動表示し、
+-- 変更が無ければ何も出さない。保存失敗時はエラーがそのまま見える。
 -- 注意: 端末によっては <C-s> がフロー制御(XOFF)で画面を固める（<C-q> で解除）
-vim.keymap.set('n', '<C-s>', '<Cmd>silent! update | redraw<CR>',
-  { desc = '保存' })
-vim.keymap.set({ 'i', 'x' }, '<C-s>', '<Esc><Cmd>silent! update | redraw<CR>',
-  { desc = '保存して Normal へ' })
+vim.keymap.set('n', '<C-s>', '<Cmd>update<CR>', { desc = '保存' })
+vim.keymap.set({ 'i', 'x' }, '<C-s>', '<Esc><Cmd>update<CR>', { desc = '保存して Normal へ' })
 
 -- 空行挿入は Neovim 0.11 組み込みデフォルトの [<Space> / ]<Space>（上/下に空行、count 対応）に任せる。
 -- 自作 go / gO は同じく組み込みの gO（document symbol = 見出し目次）と衝突するため廃止した。
