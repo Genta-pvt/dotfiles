@@ -37,6 +37,30 @@ vim.api.nvim_create_autocmd("TermOpen", {
 })
 
 -- -------------------------------------------------------
+-- mini.tabline: 変更ありバッファを目立たせる
+-- -------------------------------------------------------
+-- mini.tabline は変更あり（[+]）のバッファに専用ハイライトグループを当てる。
+-- 色をハードコードすると colorscheme 変更時に浮くため、既存グループへ link する。
+-- 背景色で「未保存」を示したい。minischeme では Diff 系の背景がタブ通常背景と
+-- 同色で区別できなかったため、検索ハイライト（IncSearch）へ寄せる。検索系は
+-- どの colorscheme でも必ず明確な背景色を持つので、テーマを変えても背景が変わる。
+-- ColorScheme イベントで当て直すのは、colorscheme 側が同名グループを再定義して
+-- link を上書きするケース（draft_skk.md の透明化解除での再読み込み含む）に備えるため。
+local function set_tabline_modified_hl()
+  vim.api.nvim_set_hl(0, 'MiniTablineModifiedCurrent', { link = 'IncSearch' })
+  vim.api.nvim_set_hl(0, 'MiniTablineModifiedVisible', { link = 'IncSearch' })
+  vim.api.nvim_set_hl(0, 'MiniTablineModifiedHidden',  { link = 'IncSearch' })
+end
+
+vim.api.nvim_create_autocmd('ColorScheme', {
+  group = vim.api.nvim_create_augroup('TablineModifiedHl', { clear = true }),
+  callback = set_tabline_modified_hl,
+})
+
+-- 起動時の colorscheme は既に適用済みのため、ここで一度明示的に当てておく
+set_tabline_modified_hl()
+
+-- -------------------------------------------------------
 -- draft_skk.md 専用: バッファ滞在中のみ背景を透明化
 -- -------------------------------------------------------
 
