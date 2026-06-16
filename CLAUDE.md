@@ -36,7 +36,7 @@ nvim/init.lua
 | プラグイン | 用途 |
 |---|---|
 | `lazy.nvim` | プラグインマネージャー |
-| `mini.nvim` | `mini.trailspace`（末尾空白）+ `mini.sessions`（セッション管理） |
+| `mini.nvim` | `mini.trailspace`（末尾空白）+ `mini.sessions`（セッション管理）+ `mini.pick`（ファジーファインダー）+ `mini.jump`（f/t/F/T 行跨ぎ化） |
 | `denops.vim` | Deno ランタイム（skkeleton の依存） |
 | `skkeleton` | SKK 日本語入力 |
 | `vimdoc-ja` | 日本語 Vim ヘルプ |
@@ -69,6 +69,8 @@ AZIK テーブルは `skkeleton-initialize-pre` イベントで `skkeleton#regis
 - かなテーブルと function マッピング（`henkanFirst`、`abbrev`、`henkanPoint`、`escape`）は登録箇所が分離している。azik テーブルは `create=true` で空生成されデフォルト rom の function を引き継がないため、必要な function は `skkeleton.lua` 側で明示的に登録する
 - `do` が Lua 予約語のためブラケット記法 `['do']` を使用している
 - 変換 source は SKK 辞書 + `google_japanese_input` の併用
+- **▼候補表示中（henkan ステート）の x / X を再割り当て**している。これらは kanatable ではなく skkeleton 本体の henkan キーマップに定義された関数キー（既定 x=前候補・X=辞書パージ）で、候補表示中だけ発火する。AZIK は し行を x で打つ（`xa`→しゃ 等）ため候補表示中の x がかな入力と衝突する。`skkeleton#register_keymap('henkan', key, func)` で x / X を解除（`func` を空文字にすると本体が割り当てを削除）し、前候補へ戻る操作だけ `@` へ退避（`henkanBackward` を再登録）。パージは使わないため退避せず解除のみ。
+  - 退避先に `@` を選んだのは、skkeleton が挿入モードで横取りするキーは `skkeleton#get_default_mapped_keys()`（`autoload/skkeleton.vim`）の**固定リスト**に限られるため。`@` はこのリストに含まれ AZIK でも未使用。`<C-p>` など**リスト外のキーは register_keymap しても raw キーが denops に届かず、ネイティブの `^P` 補完に素通りする**（候補ナビに使うには `g:skkeleton#mapped_keys` への追加と入力ステート側の誤爆対策が別途必要になる）。`@` は ▽ 入力中は未登録のまま＝通常どおり入力されゴミにならず、▼ のときだけ前候補になる。
 
 **AZIK テーブルを変更したら、対応するテストケースを `nvim/skk/test.yaml` に追加する。**
 
@@ -91,9 +93,16 @@ AZIK テーブルは `skkeleton-initialize-pre` イベントで `skkeleton#regis
 リーダーキーはスペース（`init.lua` で `<Leader>` 使用箇所より前に定義）。
 
 - `jj`（インサート）— Esc
+- `jj`（コマンドライン）— コマンドライン入力を中止（`<C-c>`。`<Esc>` は環境により実行扱いになるため避ける）
 - `<Leader>y`（ノーマル、グローバル）— 全文をクリップボードへヤンク（`:%y`、カーソル位置を保持）
 - `<Leader>s`（ノーマル、グローバル）— `:SessionSelect`（セッションを選択して読み込み）
 - `<Leader>f`（ノーマル、グローバル）— `:Pick buffers`（バッファ一覧から選択）
+- `,`（ノーマル/ビジュアル）— 直前 f/t/F/T の逆方向へ行跨ぎジャンプ（mini.jump の `;` に対する逆 repeat を自作で補完）
+
+### カーソル移動・モーションの行跨ぎ
+
+- `h` / `l`（ノーマル）— 行頭/行末で行を跨ぐ。`options.lua` で `whichwrap` に `h,l` を追加（既定 `b,s` に追記）。
+- `f` / `t` / `F` / `T` と `;` / `,` — `mini.jump` で行跨ぎ化する。`f`〜`T` と `;`（repeat_jump）は mini.jump が担い、`,`（逆方向）は `keymaps.lua` で `MiniJump.state` を使って補完する。`whichwrap` は `f/t/;/,` を対象にできない（Vim 仕様で行内モーション）ため mini.jump が必要。
 
 ### シェル設定
 

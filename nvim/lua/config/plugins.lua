@@ -23,6 +23,7 @@ return {
   --   mini.trailspace : 末尾空白の可視化・一括削除
   --   mini.sessions   : セッション保存・復元（config.session で設定）
   --   mini.pick       : ファジーファインダー（:Pick コマンドで使用）
+  --   mini.jump       : f/t/F/T を行跨ぎ化（; で行跨ぎ repeat。, は keymaps.lua で補完）
   --   minischeme      : カラースキーム（options.lua で colorscheme 指定）
   -- 未保存バッファの強調は mini.tabline をやめ、statusline の色で表現する
   -- （画面行を消費せず、ウィンドウ個別に未保存を示せる。options.lua / autocmds.lua 参照）
@@ -33,6 +34,9 @@ return {
     config = function()
       require('mini.trailspace').setup()
       require('mini.pick').setup()
+      -- f/t/F/T を行跨ぎ化（Normal/Visual/operator-pending 対応）。; も行跨ぎ repeat になる。
+      -- 逆方向 repeat の , は mini.jump がマップしないため keymaps.lua で別途補う。
+      require('mini.jump').setup()
       require('config.session')
     end,
   },

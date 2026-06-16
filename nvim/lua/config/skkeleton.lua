@@ -22,6 +22,22 @@ vim.api.nvim_create_autocmd('User', {
       jj    = 'escape',      -- jj で skkeleton を無効化（j 単独は AZIK の じ行に使用済みのため衝突しない）
     })
 
+    -- ▼候補表示中（henkan ステート）のキー再割り当て。
+    -- これらは kanatable ではなく本体の henkan キーマップに定義された関数キーで、
+    -- 候補が表示されている最中だけ発火する。デフォルトでは x=前候補・X=辞書パージ。
+    -- AZIK は し行を x で打つ（xa→しゃ 等）ため、候補表示中の x がかな入力と衝突する。
+    -- x / X を解除して候補表示中も x を AZIK 入力へ開放し（解除後は確定→新規かな入力に回る）、
+    -- 前候補へ戻る操作だけ @ へ退避する。退避先に @ を選んだ理由:
+    --   1. skkeleton の転送キー既定リスト（autoload/skkeleton.vim の get_default_mapped_keys）に
+    --      含まれるため、register_keymap した割り当てが実際に届く（<C-p> 等リスト外のキーは
+    --      raw キーが denops に渡らず、ネイティブの ^P 補完に素通りしてしまう）。
+    --   2. AZIK かなテーブルで未使用。日本語キーボードで押しやすく、変換直後に @ を打つことは稀。
+    --   3. ▽ 入力中は未登録のまま＝通常どおり @ が入力されるだけでゴミにならない（▼ のときだけ前候補）。
+    -- パージ（X）は使わないため退避せず解除のみ。func_name を空文字にすると本体側が割り当てを削除する。
+    vim.fn['skkeleton#register_keymap']('henkan', 'x', '')                 -- 前候補（x）を解除 → AZIK し行入力へ
+    vim.fn['skkeleton#register_keymap']('henkan', 'X', '')                 -- 辞書パージ（X）を解除
+    vim.fn['skkeleton#register_keymap']('henkan', '@', 'henkanBackward')   -- 前候補へ戻るを @ へ退避
+
     -- グローバル設定
     vim.fn['skkeleton#config']({
       globalDictionaries = { '~/.skk/SKK-JISYO.L' },                   -- SKK 辞書ファイル

@@ -1,5 +1,11 @@
 vim.keymap.set('i', 'jj', '<Esc>')
 
+-- コマンドライン（: / ? 入力中）も jj で中止する。<C-c> はコマンドラインを
+-- 必ず破棄して Normal へ戻る（<Esc> は環境により実行扱いになる場合があるため避ける）。
+-- 注意: コマンドラインに文字列 "jj" を打ちたい場合は <C-v>j などで回避する。
+-- skkeleton 有効中の cmdline では skkeleton 側の jj=escape が先に効くため衝突しない。
+vim.keymap.set('c', 'jj', '<C-c>', { desc = 'コマンドラインを jj で中止' })
+
 -- 全文をクリップボードへヤンク（バッファは残す）
 -- clipboard=unnamedplus 設定済みのため、無名レジスタへのヤンクで
 -- そのままクリップボードに入る。:%y はカーソル位置を動かさない
@@ -21,6 +27,21 @@ vim.keymap.set({ 'n', 'x' }, 'j', [[v:count == 0 ? 'gj' : 'j']],
   { expr = true, desc = 'count 無しは表示行で下移動' })
 vim.keymap.set({ 'n', 'x' }, 'k', [[v:count == 0 ? 'gk' : 'k']],
   { expr = true, desc = 'count 無しは表示行で上移動' })
+
+-- , : 直前 f/t/F/T の逆方向へ行跨ぎジャンプ（mini.jump の ; に対する逆 repeat）。
+-- mini.jump は ;（repeat_jump）だけをマップし , は提供しないため、ここで補う。
+-- MiniJump.state.backward（直前ジャンプの向き）を反転して MiniJump.jump へ渡し、
+-- 行跨ぎ探索自体は mini.jump 本体に任せる。jump 呼び出しで state.backward が
+-- 書き換わるので元の向きへ復元し、; が常に「元の f 方向」を維持するようにする
+-- （こうすると , を連打しても native 同様に同一方向へ進み続ける）。
+-- operator-pending(o) は mini.jump が expr で扱うため対象に含めず、d, 等は native のままにする。
+vim.keymap.set({ 'n', 'x' }, ',', function()
+  local s = MiniJump.state
+  if s.target == nil then return end  -- まだ一度も f/t していなければ何もしない
+  local orig = s.backward
+  MiniJump.jump(s.target, not orig, s.till)
+  s.backward = orig                   -- ; の基準方向を元に戻す
+end, { desc = 'mini.jump: 直前ジャンプの逆方向へ' })
 
 -- gV: 直前に変更/貼り付けた範囲を、その種類（文字/行/矩形）に応じて Visual 選択する。
 -- 例: 貼り付け直後に gV → 貼った範囲を選択 → = で整形、> でインデント
