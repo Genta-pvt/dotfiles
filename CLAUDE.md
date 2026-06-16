@@ -78,6 +78,13 @@ AZIK テーブルは `skkeleton-initialize-pre` イベントで `skkeleton#regis
 - `nvim/lua/config/autocmds.lua` — このバッファ滞在中のみ背景を透明化（BufEnter/BufLeave で切り替え）
 - `nvim/lua/config/autocmds.lua` — `<Leader>j` で全文をクリップボードへ切り取り（**バッファローカル**。誤爆防止のためこのバッファ限定）
 
+### ステータスライン（未保存バッファの表示）
+
+未保存バッファは、ステータスラインの未保存フラグ `%m`（`[+]`）**だけ**を着色して示す（旧 mini.tabline 方式は廃止）。
+
+- `nvim/lua/config/options.lua` — `laststatus = 2` を明示し、各ウィンドウが個別のステータスラインを持つ。`statusline` は未保存フラグ `%m` を `%#StatusLineModified#…%*` で囲み、`[+]` 部分のみを着色する。`%m` は描画対象ウィンドウのバッファごとに評価されるため、分割中も各ウィンドウが自分の未保存状態を個別に表示する。
+- `nvim/lua/config/autocmds.lua` — `StatusLineModified` ハイライトを定義（既存グループ `Title` へ link）。バー本体（`StatusLine`）は塗り替えず、フラグだけに色を足す非破壊方式。`ColorScheme` イベントで当て直すのは、colorscheme 再読み込み（draft_skk.md の透明化解除を含む）で link が初期化されるため。`draft_skk.md` 滞在中は `StatusLineModified` も透明化対象に含め、下書き中は色を出さない。
+
 ### 基本キーマップ
 
 リーダーキーはスペース（`init.lua` で `<Leader>` 使用箇所より前に定義）。
