@@ -68,19 +68,15 @@ vim.cmd.colorscheme('minischeme')
 -- 未保存表示ができなくなるため、ここで明示的に 2 を指定する。
 vim.opt.laststatus = 2
 
--- 未保存（modified）のときだけ、そのウィンドウのステータスラインを警告色へ切り替える式。
--- statusline の %{%...%} は「描画対象のウィンドウ／バッファをカレントにして」評価されるため、
--- vim.bo.modified はウィンドウごとの未保存状態を返す。これにより分割中でも各ウィンドウが
--- 自分の未保存状態を個別に色で表現できる（StatusLine を直接塗ると全ウィンドウ一律になってしまう）。
--- 戻り値の %#StatusLineModified# は行頭で適用するため、未保存時はバー全体が警告色になる。
--- StatusLineModified のハイライト定義は autocmds.lua 側で行う。
-function _G.statusline_modified_hl()
-  return vim.bo.modified and '%#StatusLineModified#' or ''
-end
-
--- %{%...%}: 未保存ならバー全体を警告色に切替（未保存でない場合は通常の StatusLine/StatusLineNC）
--- %f ファイル名 / %h%w%m%r 各種フラグ / %= 右寄せ / %l:%c 行:列 / %P 表示位置
-vim.opt.statusline = '%{%v:lua.statusline_modified_hl()%} %f %h%w%m%r%= %l:%c  %P '
+-- 未保存の表現は「未保存フラグ %m（[+]）だけを着色」する非破壊方式。
+-- バー全体（StatusLine の明るい背景）は塗り替えず、minischeme 本来の
+-- 「アクティブ窓は明るいバー」という資産をそのまま残す。
+-- %m は未保存時のみ [+] を出すため、保存済みでは色付き領域そのものが現れない。
+-- statusline は描画対象ウィンドウごとに評価されるので、%m もそのウィンドウの
+-- バッファの未保存状態を反映し、分割中も各ウィンドウが個別に [+] を表示する。
+-- %#StatusLineModified#…%* で囲んだ %m だけが着色対象（定義は autocmds.lua）。
+-- %f ファイル名 / %h%w%r 各種フラグ / %= 右寄せ / %l:%c 行:列 / %P 表示位置
+vim.opt.statusline = ' %f %h%w%r %#StatusLineModified#%m%*%= %l:%c  %P '
 
 -- -------------------------------------------------------
 -- 検索・置換
