@@ -23,8 +23,9 @@ return {
   --   mini.trailspace : 末尾空白の可視化・一括削除
   --   mini.sessions   : セッション保存・復元（config.session で設定）
   --   mini.pick       : ファジーファインダー（:Pick コマンドで使用）
-  --   mini.tabline    : 上部にバッファ一覧を表示（変更ありバッファを色で区別）
   --   minischeme      : カラースキーム（options.lua で colorscheme 指定）
+  -- 未保存バッファの強調は mini.tabline をやめ、statusline の色で表現する
+  -- （画面行を消費せず、ウィンドウ個別に未保存を示せる。options.lua / autocmds.lua 参照）
   {
     'echasnovski/mini.nvim',
     version = false,
@@ -32,7 +33,6 @@ return {
     config = function()
       require('mini.trailspace').setup()
       require('mini.pick').setup()
-      require('mini.tabline').setup()
       require('config.session')
     end,
   },

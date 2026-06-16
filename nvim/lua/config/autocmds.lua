@@ -37,28 +37,26 @@ vim.api.nvim_create_autocmd("TermOpen", {
 })
 
 -- -------------------------------------------------------
--- mini.tabline: 変更ありバッファを目立たせる
+-- ステータスライン: 未保存バッファを背景色で強調
 -- -------------------------------------------------------
--- mini.tabline は変更あり（[+]）のバッファに専用ハイライトグループを当てる。
+-- statusline 内の式（options.lua の statusline_modified_hl）が、未保存時に
+-- StatusLineModified を適用してバー全体を警告色にする。ここではそのハイライトを定義する。
 -- 色をハードコードすると colorscheme 変更時に浮くため、既存グループへ link する。
--- 背景色で「未保存」を示したい。minischeme では Diff 系の背景がタブ通常背景と
--- 同色で区別できなかったため、検索ハイライト（IncSearch）へ寄せる。検索系は
--- どの colorscheme でも必ず明確な背景色を持つので、テーマを変えても背景が変わる。
+-- 検索ハイライト（IncSearch）へ寄せるのは、どの colorscheme でも fg/bg が
+-- 読みやすく定義されており、テーマを変えても確実に目立つ背景色を持つため。
 -- ColorScheme イベントで当て直すのは、colorscheme 側が同名グループを再定義して
 -- link を上書きするケース（draft_skk.md の透明化解除での再読み込み含む）に備えるため。
-local function set_tabline_modified_hl()
-  vim.api.nvim_set_hl(0, 'MiniTablineModifiedCurrent', { link = 'IncSearch' })
-  vim.api.nvim_set_hl(0, 'MiniTablineModifiedVisible', { link = 'IncSearch' })
-  vim.api.nvim_set_hl(0, 'MiniTablineModifiedHidden',  { link = 'IncSearch' })
+local function set_statusline_modified_hl()
+  vim.api.nvim_set_hl(0, 'StatusLineModified', { link = 'IncSearch' })
 end
 
 vim.api.nvim_create_autocmd('ColorScheme', {
-  group = vim.api.nvim_create_augroup('TablineModifiedHl', { clear = true }),
-  callback = set_tabline_modified_hl,
+  group = vim.api.nvim_create_augroup('StatuslineModifiedHl', { clear = true }),
+  callback = set_statusline_modified_hl,
 })
 
 -- 起動時の colorscheme は既に適用済みのため、ここで一度明示的に当てておく
-set_tabline_modified_hl()
+set_statusline_modified_hl()
 
 -- -------------------------------------------------------
 -- draft_skk.md 専用: バッファ滞在中のみ背景を透明化
@@ -69,7 +67,8 @@ local function is_draft_skk(buf)
   return vim.fn.fnamemodify(vim.api.nvim_buf_get_name(buf), ':t') == 'draft_skk.md'
 end
 
-local transparent_groups = { 'Normal', 'NonText', 'LineNr', 'StatusLine', 'StatusLineNC' }
+-- StatusLineModified も含める：下書き中に未保存になっても警告色を出さず、ステータスラインを透明に保つ
+local transparent_groups = { 'Normal', 'NonText', 'LineNr', 'StatusLine', 'StatusLineNC', 'StatusLineModified' }
 
 vim.api.nvim_create_augroup('DraftSkkTransparent', { clear = true })
 
