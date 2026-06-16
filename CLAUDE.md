@@ -50,9 +50,7 @@ nvim/init.lua
 - `:SessionDelete <name>` — グローバルセッションを削除
 - `:SessionSelect` — 一覧から選択して読み込み
 
-`mini.nvim` を `lazy = false` にしているのは、`autoread` が VimEnter 前に動作しなければならないため。`shada` の `%` オプションを除外しているのも同じ理由（起動時バッファリストの復元と競合するため）。
-
-グローバルセッションの保存先は mini.sessions のデフォルト `stdpath('data')/session`（単数形・リポジトリ外）。`directory` を明示指定しないのは意図的で、デフォルト運用の環境と保存先を揃えるため。cwd に生成されるローカルセッション（`Session.vim` 等）は `.gitignore` で除外している。
+起動順の注意: `mini.nvim` は `lazy = false`（autoread が VimEnter 前に必要）、`shada` から `%` を除外（起動時バッファリスト復元と競合）。保存先は mini.sessions 既定 `stdpath('data')/session`（`directory` 非指定）、cwd のローカルセッションは `.gitignore` 済み。各理由の詳細は plugins.lua / options.lua / session.lua のコメント参照。
 
 ### SKK 日本語入力（skkeleton + AZIK）
 
@@ -69,8 +67,7 @@ AZIK テーブルは `skkeleton-initialize-pre` イベントで `skkeleton#regis
 - かなテーブルと function マッピング（`henkanFirst`、`abbrev`、`henkanPoint`、`escape`）は登録箇所が分離している。azik テーブルは `create=true` で空生成されデフォルト rom の function を引き継がないため、必要な function は `skkeleton.lua` 側で明示的に登録する
 - `do` が Lua 予約語のためブラケット記法 `['do']` を使用している
 - 変換 source は SKK 辞書 + `google_japanese_input` の併用
-- **▼候補表示中（henkan ステート）の x / X を再割り当て**している。これらは kanatable ではなく skkeleton 本体の henkan キーマップに定義された関数キー（既定 x=前候補・X=辞書パージ）で、候補表示中だけ発火する。AZIK は し行を x で打つ（`xa`→しゃ 等）ため候補表示中の x がかな入力と衝突する。`skkeleton#register_keymap('henkan', key, func)` で x / X を解除（`func` を空文字にすると本体が割り当てを削除）し、前候補へ戻る操作だけ `@` へ退避（`henkanBackward` を再登録）。パージは使わないため退避せず解除のみ。
-  - 退避先に `@` を選んだのは、skkeleton が挿入モードで横取りするキーは `skkeleton#get_default_mapped_keys()`（`autoload/skkeleton.vim`）の**固定リスト**に限られるため。`@` はこのリストに含まれ AZIK でも未使用。`<C-p>` など**リスト外のキーは register_keymap しても raw キーが denops に届かず、ネイティブの `^P` 補完に素通りする**（候補ナビに使うには `g:skkeleton#mapped_keys` への追加と入力ステート側の誤爆対策が別途必要になる）。`@` は ▽ 入力中は未登録のまま＝通常どおり入力されゴミにならず、▼ のときだけ前候補になる。
+- **▼候補表示中（henkan ステート）の x / X を再割り当て**: `register_keymap` で x / X を解除して AZIK の し行（`xa`→しゃ 等）を候補表示中も打てるようにし、前候補へ戻る操作は `@` へ退避した。退避先に `@` を選んだ理由（skkeleton の転送キーは固定リストに限られ、`<C-p>` 等リスト外キーは素通りする件）は skkeleton.lua のコメント参照。
 
 **AZIK テーブルを変更したら、対応するテストケースを `nvim/skk/test.yaml` に追加する。**
 
@@ -83,26 +80,18 @@ AZIK テーブルは `skkeleton-initialize-pre` イベントで `skkeleton#regis
 
 ### ステータスライン（未保存バッファの表示）
 
-未保存バッファは、ステータスラインの未保存フラグ `%m`（`[+]`）**だけ**を着色して示す（旧 mini.tabline 方式は廃止）。
-
-- `nvim/lua/config/options.lua` — `laststatus = 2` を明示し、各ウィンドウが個別のステータスラインを持つ。`statusline` は未保存フラグ `%m` を `%#StatusLineModified#…%*` で囲み、`[+]` 部分のみを着色する。`%m` は描画対象ウィンドウのバッファごとに評価されるため、分割中も各ウィンドウが自分の未保存状態を個別に表示する。
-- `nvim/lua/config/autocmds.lua` — `StatusLineModified` ハイライトを定義（既存グループ `Title` へ link）。バー本体（`StatusLine`）は塗り替えず、フラグだけに色を足す非破壊方式。`ColorScheme` イベントで当て直すのは、colorscheme 再読み込み（draft_skk.md の透明化解除を含む）で link が初期化されるため。`draft_skk.md` 滞在中は `StatusLineModified` も透明化対象に含め、下書き中は色を出さない。
+未保存バッファは statusline の未保存フラグ `%m`（`[+]`）**だけ**を着色して示す非破壊方式（旧 mini.tabline 方式は廃止）。`laststatus = 2` でウィンドウ個別に表示する。実装の詳細（`%#StatusLineModified#` で囲む着色・`Title` への link・`ColorScheme` での当て直し・draft_skk.md 滞在中の透明化）は options.lua / autocmds.lua のコメント参照。
 
 ### 基本キーマップ
 
-リーダーキーはスペース（`init.lua` で `<Leader>` 使用箇所より前に定義）。
+リーダーキーはスペース（`init.lua` で `<Leader>` 使用箇所より前に定義）。各マッピングの意図・注意は keymaps.lua のコメント参照。
 
-- `jj`（インサート）— Esc
-- `jj`（コマンドライン）— コマンドライン入力を中止（`<C-c>`。`<Esc>` は環境により実行扱いになるため避ける）
-- `<Leader>y`（ノーマル、グローバル）— 全文をクリップボードへヤンク（`:%y`、カーソル位置を保持）
-- `<Leader>s`（ノーマル、グローバル）— `:SessionSelect`（セッションを選択して読み込み）
-- `<Leader>f`（ノーマル、グローバル）— `:Pick buffers`（バッファ一覧から選択）
-- `,`（ノーマル/ビジュアル）— 直前 f/t/F/T の逆方向へ行跨ぎジャンプ（mini.jump の `;` に対する逆 repeat を自作で補完）
-
-### カーソル移動・モーションの行跨ぎ
-
-- `h` / `l`（ノーマル）— 行頭/行末で行を跨ぐ。`options.lua` で `whichwrap` に `h,l` を追加（既定 `b,s` に追記）。
-- `f` / `t` / `F` / `T` と `;` / `,` — `mini.jump` で行跨ぎ化する。`f`〜`T` と `;`（repeat_jump）は mini.jump が担い、`,`（逆方向）は `keymaps.lua` で `MiniJump.state` を使って補完する。`whichwrap` は `f/t/;/,` を対象にできない（Vim 仕様で行内モーション）ため mini.jump が必要。
+- `jj` — インサートで Esc / コマンドラインで入力中止
+- `<Leader>y` — 全文をクリップボードへヤンク（`:%y`）
+- `<Leader>s` — `:SessionSelect`
+- `<Leader>f` — `:Pick buffers`
+- `h` / `l` — 行頭/行末で行を跨ぐ（`whichwrap` に `h,l` を追加）
+- `f`/`t`/`F`/`T`・`;`・`,` — `mini.jump` で行跨ぎ化（`,` の逆方向は keymaps.lua で自作補完）
 
 ### シェル設定
 
