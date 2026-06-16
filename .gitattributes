@@ -1,0 +1,5 @@
+# 改行コードはリポジトリ・作業ツリーともに LF に統一する。
+# Windows 環境（自宅 win10 / 職場 win11）でも作業ツリーは LF になり、
+# core.autocrlf の設定差や CRLF 由来の「中身は同じなのに差分」を防ぐ。
+# text=auto: テキストは自動判定（バイナリは対象外）／eol=lf: チェックアウトも LF 固定。
+* text=auto eol=lf
