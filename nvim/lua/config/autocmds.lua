@@ -42,12 +42,13 @@ vim.api.nvim_create_autocmd("TermOpen", {
 -- options.lua の statusline が未保存フラグ %m を %#StatusLineModified#…%* で囲み、
 -- [+] 部分だけをこの色にする。バー本体（StatusLine の明るい背景）は無改変＝非破壊。
 -- 色をハードコードすると colorscheme 変更時に浮くため、既存グループへ link する。
--- 警告メッセージ（WarningMsg）へ寄せるのは、意味的に「注意＝未保存」と一致し、
--- 背景を持たず明るい前景色のため、バーの上で [+] だけが明るく浮き立つため。
+-- Title（minischeme ではシアン #42f7ff）へ寄せるのは、背景を持たず鮮やかな前景色で、
+-- バーの暖色系の通常文字色（#d5dc81 淡い黄緑）と最も対照的なため [+] が強く目立つ。
+-- WarningMsg 等の暖色は通常文字色と同系で目立ちにくかったので、寒色のシアンに変更した。
 -- ColorScheme イベントで当て直すのは、colorscheme 側が同名グループを再定義して
 -- link を上書きするケース（draft_skk.md の透明化解除での再読み込み含む）に備えるため。
 local function set_statusline_modified_hl()
-  vim.api.nvim_set_hl(0, 'StatusLineModified', { link = 'WarningMsg' })
+  vim.api.nvim_set_hl(0, 'StatusLineModified', { link = 'Title' })
 end
 
 vim.api.nvim_create_autocmd('ColorScheme', {
