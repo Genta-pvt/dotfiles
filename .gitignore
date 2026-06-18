@@ -8,3 +8,6 @@ nvim/tmp
 
 # 下書き・実験用の一時 Markdown
 nvim/hoge.md
+
+# Claude Code 用のプロジェクト指示（追跡対象から除外）
+CLAUDE.md
