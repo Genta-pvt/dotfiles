@@ -24,6 +24,7 @@ return {
   --   mini.sessions   : セッション保存・復元（config.session で設定）
   --   mini.pick       : ファジーファインダー（:Pick コマンドで使用）
   --   mini.jump       : f/t/F/T を行跨ぎ化（; で行跨ぎ repeat。, は keymaps.lua で補完）
+  --   mini.surround   : 囲み（括弧・引用符・タグ）の追加/削除/置換/検索/強調
   --   minischeme      : カラースキーム（options.lua で colorscheme 指定）
   -- 未保存バッファの強調は mini.tabline をやめ、statusline の色で表現する
   -- （画面行を消費せず、ウィンドウ個別に未保存を示せる。options.lua / autocmds.lua 参照）
@@ -37,6 +38,9 @@ return {
       -- f/t/F/T を行跨ぎ化（Normal/Visual/operator-pending 対応）。; も行跨ぎ repeat になる。
       -- 逆方向 repeat の , は mini.jump がマップしないため keymaps.lua で別途補う。
       require('mini.jump').setup()
+      -- 囲み操作。デフォルトキー（sa 追加 / sd 削除 / sr 置換 / sf・sF 検索 / sh 強調）を使う。
+      -- s 始まりのマップ使用中、素の s（1文字置換）は誤爆防止で <Nop> に潰される（代替は cl）。
+      require('mini.surround').setup()
       require('config.session')
     end,
   },
