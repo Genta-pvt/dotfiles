@@ -37,6 +37,26 @@ vim.api.nvim_create_autocmd("TermOpen", {
 })
 
 -- -------------------------------------------------------
+-- markdown: treesitter ハイライト + conceal で見た目を簡潔化
+-- -------------------------------------------------------
+-- 目的: markdown のリンク等が冗長に見える問題を解消する。
+-- markdown / markdown_inline パーサーは Neovim 本体に同梱されているため
+-- プラグイン追加は不要で、treesitter ハイライトを開始すれば組み込みクエリの
+-- conceal 定義が効く（[text](url) → text だけ表示、強調マーカー * _ ` も畳む等）。
+-- 対象は markdown に限定する（他言語パーサーは未同梱で、グローバル有効化は無意味なため）。
+-- conceallevel=2: conceal 定義のある箇所を畳む。concealcursor は既定（空）のままにし、
+-- カーソルがある行は raw 表示に戻す＝URL 編集時はその行へ移動すれば元の記法が見える。
+-- pcall: 万一パーサー未導入の環境でもエラーで FileType 処理が止まらないよう保護する。
+vim.api.nvim_create_autocmd('FileType', {
+  group = vim.api.nvim_create_augroup('MarkdownConceal', { clear = true }),
+  pattern = 'markdown',
+  callback = function()
+    pcall(vim.treesitter.start)
+    vim.opt_local.conceallevel = 2
+  end,
+})
+
+-- -------------------------------------------------------
 -- ステータスライン: 未保存フラグ [+] だけを明るい色で強調
 -- -------------------------------------------------------
 -- options.lua の statusline が未保存フラグ %m を %#StatusLineModified#…%* で囲み、
