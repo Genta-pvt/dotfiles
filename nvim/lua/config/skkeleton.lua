@@ -64,10 +64,11 @@ vim.api.nvim_create_autocmd('User', {
     -- そこで暴発しやすい破壊的な編集キーを横取りリストへ加え、input/henkan の両ステートで
     -- kakutei(確定)に束ねる。変換中に誤爆しても「確定されるだけ」で ▽ が宙に浮かなくなる。
     -- 何も入力していない時の kakutei はカナ副モードを解くだけで SKK 自体は無効化しない（安全）。
-    -- 対象は実害の大きい4キーに限定する: C-w(単語削除) / C-u(行頭まで削除) / C-k(ダイグラフ) /
-    -- C-r(レジスタ挿入)。代償として SKK 有効中はこの4キーのネイティブ動作が確定に化ける
-    -- （単語削除等をしたい時は <C-l> で一旦 SKK を無効化する）。
-    local stray_keys = { '<C-w>', '<C-u>', '<C-k>', '<C-r>' }
+    -- 対象は実害が大きく かつ SKK 有効中に使う機会の少ない2キーに限定する:
+    -- C-k(ダイグラフ入力) / C-u(行頭まで削除)。
+    -- C-w(単語削除)・C-r(レジスタ挿入)は SKK 有効中も使いたいケースが多いため対象から外す
+    -- （これらは横取りされず素通りのまま。変換中の暴発は依然 desync を起こし得るが、利便性を優先）。
+    local stray_keys = { '<C-k>', '<C-u>' }
     vim.g['skkeleton#mapped_keys'] = vim.list_extend(vim.g['skkeleton#mapped_keys'], stray_keys)
     for _, key in ipairs(stray_keys) do
       vim.fn['skkeleton#register_keymap']('input',  key, 'kakutei')
