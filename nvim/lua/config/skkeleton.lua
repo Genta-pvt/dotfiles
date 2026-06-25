@@ -54,6 +54,26 @@ vim.api.nvim_create_autocmd('User', {
     local mapped = vim.g['skkeleton#mapped_keys'] or {}
     vim.g['skkeleton#mapped_keys'] = vim.tbl_filter(function(k) return not pair_keys[k] end, mapped)
 
+    -- 変換中(▽/▼)の暴発による状態ズレ(desync)対策。
+    -- skkeleton は横取りリスト g:skkeleton#mapped_keys に載るキーだけを buffer-local で奪い、
+    -- そこに無い Insert 編集系キーはネイティブ Neovim へ素通りする（既定リストは印字 ASCII +
+    -- <BS> <C-h> <CR> <Space> <C-q> <C-j> <C-g> <Esc> 等だけ）。変換中に素通りキーが発火すると
+    -- バッファのテキストだけが書き換わり、denops 側の skkeleton 内部状態と食い違う。結果 ▽ が
+    -- skkeleton の管轄外の「迷子テキスト」になり、C-g(キャンセル)や確定では消せず <BS> 連打を
+    -- 強いられる（＝体感上「SKK が無効化された」現象の正体）。
+    -- そこで暴発しやすい破壊的な編集キーを横取りリストへ加え、input/henkan の両ステートで
+    -- kakutei(確定)に束ねる。変換中に誤爆しても「確定されるだけ」で ▽ が宙に浮かなくなる。
+    -- 何も入力していない時の kakutei はカナ副モードを解くだけで SKK 自体は無効化しない（安全）。
+    -- 対象は実害の大きい4キーに限定する: C-w(単語削除) / C-u(行頭まで削除) / C-k(ダイグラフ) /
+    -- C-r(レジスタ挿入)。代償として SKK 有効中はこの4キーのネイティブ動作が確定に化ける
+    -- （単語削除等をしたい時は <C-l> で一旦 SKK を無効化する）。
+    local stray_keys = { '<C-w>', '<C-u>', '<C-k>', '<C-r>' }
+    vim.g['skkeleton#mapped_keys'] = vim.list_extend(vim.g['skkeleton#mapped_keys'], stray_keys)
+    for _, key in ipairs(stray_keys) do
+      vim.fn['skkeleton#register_keymap']('input',  key, 'kakutei')
+      vim.fn['skkeleton#register_keymap']('henkan', key, 'kakutei')
+    end
+
     -- グローバル設定
     vim.fn['skkeleton#config']({
       globalDictionaries = { '~/.skk/SKK-JISYO.L' },                   -- SKK 辞書ファイル
