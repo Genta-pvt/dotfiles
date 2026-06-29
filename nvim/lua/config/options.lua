@@ -99,8 +99,19 @@ vim.opt.inccommand = "split"   -- :%s の置換プレビューをsplitウィン�
 -- shada: セッション間で保持する情報を設定
 -- ! グローバル変数, '100 最近100ファイルのマーク, <50 レジスタ最大50行,
 -- s10 最大10KBのアイテム, h hlsearch無効化, % バッファリスト保存
--- % を除外：起動時のバッファリスト復元を無効化（mini.sessions の autoread と競合するため）
+-- % を除外：起動時のバッファリスト復元を無効化し、クリーンスタートを保つ
+--   （セッションも autoread=false で復元しないため、shada・session の両系統でバッファ持ち越しを断つ）
 vim.opt.shada = "!,'100,<50,s10,h"
+
+-- sessionoptions から buffers を除外：セッションに「隠れバッファ」（どのウィンドウにも
+-- 表示されていない揮発バッファ）を持ち越さない。gf でのリンク徘徊（Zettelkasten 運用）で
+-- 増えた背景バッファが mini.sessions の autoread 復元時に丸ごと戻り、バッファ一覧が
+-- 昨日の残骸で溢れる問題を断つ。
+-- buffers が落とすのは「隠れ／未ロードのバッファ」だけで、ウィンドウに表示中のファイルは
+-- windowed buffer として復元される。各ウィンドウの lcd・cwd は curdir 側が担うため影響なし。
+-- バッファリスト復元は shada（% を除外済み）でも無効化しており、これで復元元を session 側も
+-- 断つことで隠れバッファの持ち越しを両系統から完全に止める。
+vim.opt.sessionoptions:remove('buffers')
 
 -- undofile: undo 履歴をファイルに保存し、Neovim を再起動した後でも undo/redo を可能にする。
 -- 保存先は stdpath('state')/undo（作業ディレクトリは汚さない）。

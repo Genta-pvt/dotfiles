@@ -14,10 +14,11 @@
 -- ローカルセッション（Session.vim）は cwd に生成されるため、
 -- リポジトリ内で誤って作成された場合に備え .gitignore で除外している。
 
+-- セッションの運用方針（揮発デフォルト＋意図的保管、なぜ false にするか）は CLAUDE.md に集約。
 require('mini.sessions').setup({
-  autowrite = true,             -- 終了時に現在のセッションを自動保存
-  autoread  = true,             -- 起動時に最新のセッションを自動復元
-  file      = 'Session.vim',    -- ローカルセッション（cwd に配置）
+  autowrite = false,            -- 終了時に自動保存しない（保存は手動 :SessionWrite のみ）
+  autoread  = false,            -- 起動時に自動復元しない（復元は手動 :SessionSelect のみ）
+  file      = 'Session.vim',    -- ローカルセッション名（手動 :SessionWrite/Read で使用）
 })
 
 -- -------------------------------------------------------

@@ -32,7 +32,7 @@ return {
   {
     'echasnovski/mini.nvim',
     version = false,
-    lazy    = false,  -- VimEnter 前に確実にロードする（mini.sessions の autoread 用）
+    lazy    = false,  -- 起動時に同期ロード（options.lua の colorscheme 'minischeme' が mini.nvim 同梱で、設定適用前にロード済みが必要）
     config = function()
       require('mini.trailspace').setup()
       require('mini.pick').setup()
