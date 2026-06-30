@@ -19,11 +19,26 @@ require('mkdnflow').setup({
   -- 対象を markdown filetype に限定（mkdnflow は Neovim の filetype 名で指定する。
   -- 拡張子キー 'md' は 'markdown' へ自動移行される旨の警告が出るため filetype 名で書く）
   filetypes = { markdown = true },
+  -- リンク解決の基準を vault ルートにする。ノート集約dir（MarkDownNoteHome 等）に
+  -- root_marker（.root）を1個置くと、どのノート（daily サブフォルダ内含む）から開いても
+  -- 常にそのルート基準で [note](note.md) を解決する。先頭 './' も root 基準で解釈される。
+  -- デフォルト 'first'（最初に開いたファイルのdir基準）では、daily を最初に開いて起動すると
+  -- 平置きノートへ届かず auto_create で新規ファイルが作られてしまうため 'root' にする。
+  -- 標準 Vim の gf が cwd も探索して届いていた挙動を、vault ルート固定で取り戻す形。
+  -- root_marker が無い場所（dotfiles 内の md 等）では fallback='current'（現ファイルのdir基準）。
+  path_resolution = {
+    primary     = 'root',
+    root_marker = '.root',
+    fallback    = 'current',
+  },
   links = {
     -- リンク作成時のパス変換を無効化。デフォルトは「小文字化＋空白をダッシュ化＋
     -- 日付 prefix（YYYY-MM-DD_）付与」で、() の中が "日付_ラベル.md" になる。
     -- false にすると選択文字そのままの "ラベル.md" になる（日本語ラベルも保たれる）。
     transform_on_create = false,
+    -- implicit_extension は設定しない（デフォルト nil＝拡張子は明示必須）。
+    -- リンクは "note.md" のように拡張子付きで書く運用。将来 Obsidian 等の他プラット
+    -- フォームへ移す際の互換性を担保するため、.md 省略補完にはあえて頼らない。
   },
 })
 
