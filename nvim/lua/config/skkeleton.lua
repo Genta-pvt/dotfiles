@@ -39,20 +39,14 @@ vim.api.nvim_create_autocmd('User', {
     vim.fn['skkeleton#register_keymap']('henkan', 'X', '')                 -- 辞書パージ（X）を解除
     vim.fn['skkeleton#register_keymap']('henkan', '@', 'henkanBackward')   -- 前候補へ戻るを @ へ退避
 
-    -- mini.pairs（自動ペア補完）との競合回避。
-    -- skkeleton は有効化のたびに印字記号キーを buffer-local + <nowait> の insert マップで
-    -- 横取りし、global で張られた mini.pairs のマップを覆ってしまう（buffer-local + <nowait>
-    -- が global より優先されるため）。結果、skk 有効中は括弧・引用符の自動ペアが一切効かない。
-    -- そこで、かな割り当てのない ( ) { } " ' ` の7種だけを横取りリスト g:skkeleton#mapped_keys
-    -- から除外し、global の mini.pairs に渡す（skk 有効中もこれらは自動ペア化される）。
-    -- [ ] は外さない: 単打 [→「 / ]→」、派生 x[→半角[ / z[→『 等で使用中であり、外すと
-    --   これらキー押下が skkeleton に届かず日本語入力が壊れる（継続入力の途中キーも同じ
-    --   マップ経由で受け取るため、x の継続待ち中に [ を奪われると pending が宙に浮く）。
-    -- <BS> <CR> も外さない: 外すと変換確定・かなバッファ削除という SKK の根幹が機能しなくなる。
-    --   かなモード中のペア内 BS 両側削除・Enter 展開は諦める（skk 無効時は mini.pairs が効く）。
-    local pair_keys = { ['(']=true, [')']=true, ['{']=true, ['}']=true, ['"']=true, ["'"]=true, ['`']=true }
-    local mapped = vim.g['skkeleton#mapped_keys'] or {}
-    vim.g['skkeleton#mapped_keys'] = vim.tbl_filter(function(k) return not pair_keys[k] end, mapped)
+    -- mini.pairs（自動ペア補完）は global の insert マップだが、skkeleton は有効化中に
+    -- 印字記号キーを buffer-local で横取りするため、SKK 有効中は自動ペアが効かない。
+    -- これは意図的にそのままにする（横取りリスト g:skkeleton#mapped_keys には手を加えない）。
+    -- 括弧キーを mapped_keys から外せば SKK 有効中も mini.pairs が効く反面、変換中（▽/▼）に
+    -- 括弧を打つとキーが skkeleton に届かず、skkeleton の「テーブルにない文字は確定して挿入」
+    -- 動作（function/input.ts の kanaInput）が発動できない。すると mini.pairs だけが括弧を入れ、
+    -- 変換マーカー(▽)が取り残されて消せなくなる（desync）。この実害を避けるため SKK 有効中の
+    -- 自動ペアは諦め、自動ペアは SKK 無効時のみ効かせる（運用方針は CLAUDE.md 参照）。
 
     -- 変換中(▽/▼)の暴発による状態ズレ(desync)対策。
     -- skkeleton は横取りリスト g:skkeleton#mapped_keys に載るキーだけを buffer-local で奪い、
