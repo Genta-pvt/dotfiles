@@ -6,6 +6,20 @@ vim.keymap.set('i', 'jj', '<Esc>')
 -- skkeleton 有効中の cmdline では skkeleton 側の jj=escape が先に効くため衝突しない。
 vim.keymap.set('c', 'jj', '<C-c>', { desc = 'コマンドラインを jj で中止' })
 
+-- insert モードにコマンドを持たない制御キーの「制御文字 誤挿入」対策。
+-- Ctrl+英字は ASCII 制御コード（C-a=0x01 … C-z=0x1a）を端末へ送る。Neovim の insert
+-- モードにコマンドが割り当てられている制御キー（C-a/C-r/C-t/C-u/C-w/C-y 等）はそれぞれの
+-- 動作をするが、コマンドを持たない制御キーは生の制御文字がそのままバッファへ落ちる
+-- （端末経路特有の挙動で、nvim_feedkeys を使う headless では再現しない）。
+-- 公式 doc の insert.txt タグ照合で該当するのは C-b(^B) / C-f(^F) / C-z(^Z) の3つ
+-- （C-l/C-s も無コマンドだが、各々 skkeleton 無効化・保存に割当済みのため落ちない）。
+-- いずれも insert では使わないため <Nop> で握り潰し、ゴミ挿入を断つ。
+-- 副次効果: SKK 変換中（▽/▼）に暴発してもバッファが変わらず、▽ が迷子になる desync を防ぐ。
+-- Normal モードの C-f/C-b（ページ送り）・C-z（サスペンド）は insert 限定マップのため不変。
+vim.keymap.set('i', '<C-f>', '<Nop>', { desc = 'insert: 制御文字 ^F の誤挿入を防ぐ' })
+vim.keymap.set('i', '<C-b>', '<Nop>', { desc = 'insert: 制御文字 ^B の誤挿入を防ぐ' })
+vim.keymap.set('i', '<C-z>', '<Nop>', { desc = 'insert: 制御文字 ^Z の誤挿入を防ぐ' })
+
 -- 全文をクリップボードへヤンク（バッファは残す）
 -- clipboard=unnamedplus 設定済みのため、無名レジスタへのヤンクで
 -- そのままクリップボードに入る。:%y はカーソル位置を動かさない
