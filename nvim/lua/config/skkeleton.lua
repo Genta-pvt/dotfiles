@@ -88,6 +88,11 @@ vim.api.nvim_create_autocmd('User', {
       -- キャンセルで読みごと一気に未入力へ戻るが、打った読みまで消えるのは過大なので、
       -- ▼→▽（読み復元）→ 未入力 と1段ずつ戻す
       immediatelyCancel  = false,
+      -- 辞書補完（ddc 連携）の候補順を学習・永続化するファイル。
+      -- 公式 doc 例は '~/.skkeleton/rank.json' だが、本環境では ~/.skkeleton が
+      -- ユーザー辞書「ファイル」（userDictionary のデフォルト）なので配下にパスを
+      -- 作れない。辞書置き場 ~/.skk/（全マシン設置済みの前提 dir）に置く
+      completionRankFile = '~/.skk/rank.json',
     })
   end,
 })
@@ -140,6 +145,41 @@ vim.fn['skkeleton_state_popup#config']({
 })
 -- README の run() は enable() の別名（funcref 変数）で vim.fn からは解決できないため実関数を呼ぶ
 vim.fn['skkeleton_state_popup#enable']()
+
+-- 辞書補完（ddc 連携）
+-- skkeleton 同梱の ddc ソースで、▽入力中に SKK 辞書候補をリアルタイム表示する。
+-- ソースは2つ: skkeleton（送りなし直接変換）/ skkeleton_okuri（見出しの一部を送り仮名に
+-- 見立てる送りあり変換）。設定値は skkeleton 公式 doc の COMPLETION 節の例に準拠。
+--   - matchers/sorters/converters 空 + isVolatile: ソース側で絞り込み・順位計算を行う
+--     特殊仕様のため、ddc 側のフィルタを外し毎回計算を走らせる（doc 指定）
+--   - minAutoCompleteLength=1: skkeleton ソースは1文字入力時に完全一致候補のみ返す
+--     機能を持つため、既定の2から下げる（doc 指定）
+-- doc 例にある '_'（全ソース既定の matcher_head/sorter_rank）は省略する: 参照するには
+-- フィルタプラグインの追加導入が必要だが、登録ソースが上記2つだけの本構成では一度も
+-- 参照されないため（設定は explicit に、未使用の導入はしない方針）。
+-- 候補確定は onCompleteDone → skkeleton の completeCallback へ通知され内部状態と
+-- 同期するため、ネイティブ補完を skkeleton の頭越しに使う場合と違い desync しない。
+-- SKK 無効時はソースが候補を返さず ddc は沈黙する（ネイティブ <C-p> 運用は不変）。
+vim.fn['ddc#custom#patch_global']('ui', 'native')
+vim.fn['ddc#custom#patch_global']('sources', { 'skkeleton', 'skkeleton_okuri' })
+vim.fn['ddc#custom#patch_global']('sourceOptions', {
+  skkeleton = {
+    mark                  = 'SKK',
+    matchers              = {},
+    sorters               = {},
+    converters            = {},
+    isVolatile            = true,
+    minAutoCompleteLength = 1,
+  },
+  skkeleton_okuri = {
+    mark       = 'SKK*',
+    matchers   = {},
+    sorters    = {},
+    converters = {},
+    isVolatile = true,
+  },
+})
+vim.fn['ddc#enable']()
 
 -- <C-j> で有効化、<C-l> で無効化（トグルではなくステートレスに操作する）
 vim.keymap.set('i', '<C-j>', '<Plug>(skkeleton-enable)',  { desc = 'skkeleton: IME 有効化' })

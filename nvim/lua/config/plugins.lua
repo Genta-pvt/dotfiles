@@ -91,4 +91,14 @@ return {
   -- skkeleton_state_popup#config() + enable() 呼び出しで行う（これが公式のセットアップ手順）
   { 'NI57721/skkeleton-state-popup' },
 
+  -- https://github.com/Shougo/ddc.vim
+  -- 補完エンジン（denops 製）。本構成では SKK 辞書補完（skkeleton 同梱の ddc ソース）
+  -- 専用に使い、汎用の補完ソースは登録しない。設定は config.skkeleton の ddc セクション参照
+  { 'Shougo/ddc.vim' },
+
+  -- https://github.com/Shougo/ddc-ui-native
+  -- ddc の候補表示 UI。ネイティブ補完メニュー（complete()）を使う最小構成で、
+  -- SKK 無効時のネイティブ <C-p> 補完と同じ pum 機構のため操作感が揃う
+  { 'Shougo/ddc-ui-native' },
+
 }
