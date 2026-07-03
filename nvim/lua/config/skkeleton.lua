@@ -70,15 +70,45 @@ vim.api.nvim_create_autocmd('User', {
     end
 
     -- グローバル設定
+    -- markerHenkan / markerHenkanSelect（デフォルト ▽ / ▼）はバッファへ挿入される「実文字」で、
+    -- desync（内部状態とバッファのズレ）が起きた瞬間に消せない残骸として物質化する実害があった
+    -- （abbrev 中のネイティブ補完暴発などが引き金）。skkeleton 本体でマーカーは表示文字列の
+    -- 連結にのみ使われ状態遷移に関与しない（denops/skkeleton/state.ts）ため、空文字にして
+    -- 挿入自体を断つ。desync そのものは起き得るが、バッファが汚れる症状クラスごと消える。
+    -- 変換中の視覚表示は skkeleton-henkan-highlight（後述のハイライト定義）で代替する。
     vim.fn['skkeleton#config']({
       globalDictionaries = { '~/.skk/SKK-JISYO.L' },                   -- SKK 辞書ファイル
       eggLikeNewline     = true,                                        -- 変換確定後に改行しない（egg ライク）
       kanaTable          = 'azik',                                      -- 上で登録した AZIK テーブルを使用
       sources            = { 'skk_dictionary', 'google_japanese_input' }, -- SKK 辞書 + Google 変換を併用
       keepState          = true,                                          -- Insert モードを抜けても IME 有効状態を維持
+      markerHenkan       = '',                                            -- ▽ を挿入しない（ハイライトで代替）
+      markerHenkanSelect = '',                                            -- ▼ を挿入しない（ハイライトで代替）
     })
   end,
 })
+
+-- 変換領域ハイライト（skkeleton-henkan-highlight 用）
+-- プラグインは User skkeleton-handled イベントごとに g:skkeleton#state（phase / henkanFeed）を
+-- 参照し、カーソル位置から領域を逆算して extmark で着色する（バッファ内のマーカー文字は
+-- 検索しないため、マーカー空文字化と両立する）。
+-- 注意: プラグイン側に hlexists() ガードがあり、下記グループが未定義だとエラーも出さず
+-- 何もしない。この定義が事実上の有効化スイッチになっている。
+-- ▽相当（読み入力中）は下線のみ、▼相当（候補選択中）は下線+反転で区別する。
+-- 色を持たせず属性だけにするのは、colorscheme（minischeme）の配色を壊さないため。
+local function set_henkan_hl()
+  vim.api.nvim_set_hl(0, 'SkkeletonHenkan',       { underline = true })
+  vim.api.nvim_set_hl(0, 'SkkeletonHenkanSelect', { underline = true, reverse = true })
+end
+
+-- colorscheme 再適用（draft_skk.md の BufLeave での再読み込み含む）で消えるため当て直す
+vim.api.nvim_create_autocmd('ColorScheme', {
+  group    = vim.api.nvim_create_augroup('SkkeletonHenkanHl', { clear = true }),
+  callback = set_henkan_hl,
+})
+
+-- 起動時の colorscheme は既に適用済みのため、ここで一度明示的に当てておく
+set_henkan_hl()
 
 -- <C-j> で有効化、<C-l> で無効化（トグルではなくステートレスに操作する）
 vim.keymap.set('i', '<C-j>', '<Plug>(skkeleton-enable)',  { desc = 'skkeleton: IME 有効化' })

@@ -4,5 +4,6 @@
   "mini.nvim": { "branch": "main", "commit": "9d0b9b7188d5c24b5a87f0d8b383ec8bda7a0de4" },
   "mkdnflow.nvim": { "branch": "main", "commit": "f20732686f70f60f18f09f4befe984ae63a99201" },
   "skkeleton": { "branch": "main", "commit": "71178b6debd9f1b3bb00abfd865ca642e82e24c7" },
+  "skkeleton-henkan-highlight": { "branch": "main", "commit": "361ca90537e9cf7cd404899a4ed0bbef03124fd8" },
   "vimdoc-ja": { "branch": "master", "commit": "800d34c52ab699cb4452e274ecbf9ff0b774626b" }
 }

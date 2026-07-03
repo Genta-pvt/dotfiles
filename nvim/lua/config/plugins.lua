@@ -78,4 +78,10 @@ return {
   -- SKK 日本語入力エンジン。設定は config.skkeleton で行う
   { 'vim-skk/skkeleton' },
 
+  -- https://github.com/NI57721/skkeleton-henkan-highlight
+  -- 変換中（▽/▼ステート）の入力領域を extmark でハイライト表示する。
+  -- 変換マーカー文字を空にした運用（config.skkeleton 参照）の視覚的代替。
+  -- User skkeleton-handled イベント駆動の軽量 vimscript のため遅延ロード指定は不要
+  { 'NI57721/skkeleton-henkan-highlight' },
+
 }
