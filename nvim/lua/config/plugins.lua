@@ -84,4 +84,11 @@ return {
   -- User skkeleton-handled イベント駆動の軽量 vimscript のため遅延ロード指定は不要
   { 'NI57721/skkeleton-henkan-highlight' },
 
+  -- https://github.com/NI57721/skkeleton-state-popup
+  -- SKK の入力モード・変換ステートをカーソル直下のフロート窓に表示する。
+  -- マーカーレス運用で失われた「/（abbrev）や ;（変換ポイント）直後の即時フィードバック」を補う。
+  -- plugin/ ディレクトリを持たない設計のため、有効化は config.skkeleton 側の
+  -- skkeleton_state_popup#config() + enable() 呼び出しで行う（これが公式のセットアップ手順）
+  { 'NI57721/skkeleton-state-popup' },
+
 }

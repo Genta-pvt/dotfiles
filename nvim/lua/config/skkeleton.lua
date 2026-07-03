@@ -110,6 +110,33 @@ vim.api.nvim_create_autocmd('ColorScheme', {
 -- 起動時の colorscheme は既に適用済みのため、ここで一度明示的に当てておく
 set_henkan_hl()
 
+-- モード・ステート表示（skkeleton-state-popup 用）
+-- カーソル直下のフロート窓に現在の入力モード（あ/ア/ｶﾅ/Ａ/_A）と変換ステート（▽▽/▼▼/ab）を
+-- 表示する。マーカーレス運用（markerHenkan 空文字化）では /（abbrev）や ;（変換ポイント）を
+-- 押した直後に画面変化が無い（ハイライトは henkanFeed が空だと出ない）ため、その即時
+-- フィードバックをバッファ外の popup で補う。ラベル・表示位置は README の Neovim 例に準拠
+--（latin のみ短縮、下記コメント参照）。
+--
+-- 先に skkeleton#is_enabled() を一度呼ぶのは autoload/skkeleton.vim の強制ロードのため。
+-- popup は InsertEnter 等で g:skkeleton#mode / g:skkeleton#state を参照するが、これらは
+-- skkeleton の autoload 先頭で初期化されるので、未ロードのまま Insert に入ると
+-- 未定義変数エラーになる（autoload は初回の関数呼び出しまで読まれない）。
+vim.fn['skkeleton#is_enabled']()
+
+vim.fn['skkeleton_state_popup#config']({
+  labels = {
+    ['input']           = { hira = 'あ',  kata = 'ア',  hankata = 'ｶﾅ',  zenkaku = 'Ａ' },
+    ['input:okurinasi'] = { hira = '▽▽', kata = '▽▽', hankata = '▽▽', abbrev = 'ab' },
+    ['input:okuriari']  = { hira = '▽▽', kata = '▽▽', hankata = '▽▽' },
+    ['henkan']          = { hira = '▼▼', kata = '▼▼', hankata = '▼▼', abbrev = 'ab' },
+    -- README 例は '\_A'（バックスラッシュ込み3文字）だが、冗長なため 2 文字に短縮
+    latin = '_A',
+  },
+  opts = { relative = 'cursor', col = 0, row = 1, anchor = 'NW', style = 'minimal' },
+})
+-- README の run() は enable() の別名（funcref 変数）で vim.fn からは解決できないため実関数を呼ぶ
+vim.fn['skkeleton_state_popup#enable']()
+
 -- <C-j> で有効化、<C-l> で無効化（トグルではなくステートレスに操作する）
 vim.keymap.set('i', '<C-j>', '<Plug>(skkeleton-enable)',  { desc = 'skkeleton: IME 有効化' })
 vim.keymap.set('c', '<C-j>', '<Plug>(skkeleton-enable)',  { desc = 'skkeleton: IME 有効化' })
