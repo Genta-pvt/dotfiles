@@ -84,6 +84,10 @@ vim.api.nvim_create_autocmd('User', {
       keepState          = true,                                          -- Insert モードを抜けても IME 有効状態を維持
       markerHenkan       = '',                                            -- ▽ を挿入しない（ハイライトで代替）
       markerHenkanSelect = '',                                            -- ▼ を挿入しない（ハイライトで代替）
+      -- <C-g>（cancel）を段階キャンセルにする。デフォルト true は候補選択（▼）からの
+      -- キャンセルで読みごと一気に未入力へ戻るが、打った読みまで消えるのは過大なので、
+      -- ▼→▽（読み復元）→ 未入力 と1段ずつ戻す
+      immediatelyCancel  = false,
     })
   end,
 })
