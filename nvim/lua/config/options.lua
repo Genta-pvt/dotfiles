@@ -62,6 +62,13 @@ vim.opt.number       = true  -- 行番号を表示
 vim.opt.cursorline   = true  -- カーソル行をハイライト
 vim.opt.termguicolors = true -- 24ビットカラーを有効化
 
+-- pumheight: 補完メニュー（native pum）の表示高さの上限。既定 0 は画面に入るだけ伸び、
+-- 候補数に比例して窓が画面を占有する。8 行にキャップし、9 件目以降は <C-n> のスクロールで
+-- 到達する（候補は捨てられない）。窓の高さの「総量」制限のため、ddc の SKK 辞書補完で
+-- 補完ソースが増えても窓は育たない（ソース単位の maxItems ではこれを抑えられない）。
+-- ネイティブ <C-p> 補完も同じ pum 機構のため同様に 8 行へ揃う。
+vim.opt.pumheight = 8
+
 -- カラースキームを設定（mini.nvim が提供する minischeme を使用）
 vim.cmd.colorscheme('minischeme')
 
