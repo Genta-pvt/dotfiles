@@ -42,6 +42,12 @@ vim.keymap.set('n', '<Leader>s', '<Cmd>SessionSelect<CR>', { desc = 'セッシ�
 -- バッファ一覧をファジーファインダーで選択（mini.pick の :Pick buffers 相当）
 vim.keymap.set('n', '<Leader>f', '<Cmd>Pick buffers<CR>', { desc = 'バッファ一覧から選択' })
 
+-- 下書きバッファを自動採番で開く（autocmds.lua の :DraftNew 相当）。
+-- 割り込みタスク時に即座に新しい下書きへ移れるようマップしておく。
+-- 下書き間の行き来は <Leader>f（Pick buffers）で行い、中身の判別は
+-- ピッカー内の <Tab>（mini.pick 標準のプレビュー切り替え）で行う
+vim.keymap.set('n', '<Leader>dn', '<Cmd>DraftNew<CR>', { desc = '下書きバッファを自動採番で開く' })
+
 -- ============================================================
 -- mini.basics 由来のキーマップ（mini に依存せず explicit に記述）
 -- ============================================================

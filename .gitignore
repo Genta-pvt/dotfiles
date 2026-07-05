@@ -10,7 +10,8 @@ nvim/tmp
 nvim/hoge.md
 
 # 日本語下書き用バッファ（Claude とのインターフェースにも使う一時ファイル）
-draft_skk.md
+# :DraftNew の自動採番ファイル（draft_skk_2.md 等）も含めてワイルドカードで除外する
+draft_skk*.md
 
 # Claude Code 用のプロジェクト指示（追跡対象から除外）
 CLAUDE.md

@@ -80,12 +80,16 @@ vim.api.nvim_create_autocmd('ColorScheme', {
 set_statusline_modified_hl()
 
 -- -------------------------------------------------------
--- draft_skk.md 専用: バッファ滞在中のみ背景を透明化
+-- draft_skk*.md 専用: バッファ滞在中のみ背景を透明化
 -- -------------------------------------------------------
 
--- :t でパス部分を除いたファイル名のみを取得するため、ファイルがどこにあっても判定できる
+-- :t でパス部分を除いたファイル名のみを取得するため、ファイルがどこにあっても判定できる。
+-- 完全一致でなく「draft_skk で始まり .md で終わる」前方一致にすることで、
+-- :DraftNew の採番ファイル（draft_skk_2.md 等）や手動命名（draft_skk_mail.md 等）も
+-- 同じ下書き扱い（透明化・<Leader>j）になる
 local function is_draft_skk(buf)
-  return vim.fn.fnamemodify(vim.api.nvim_buf_get_name(buf), ':t') == 'draft_skk.md'
+  local name = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(buf), ':t')
+  return name:match('^draft_skk.*%.md$') ~= nil
 end
 
 -- StatusLineModified も含める：下書き中に未保存になっても警告色を出さず、ステータスラインを透明に保つ
@@ -116,10 +120,10 @@ vim.api.nvim_create_autocmd('BufLeave', {
 })
 
 -- -------------------------------------------------------
--- draft_skk.md 専用: バッファローカルキーマップ
+-- draft_skk*.md 専用: バッファローカルキーマップ
 -- -------------------------------------------------------
 -- 全文切り取りは他のファイルで誤爆すると痛い操作のため、
--- 下書きバッファ（draft_skk.md）限定のバッファローカルマップにする
+-- 下書きバッファ（draft_skk*.md）限定のバッファローカルマップにする
 
 vim.api.nvim_create_autocmd('BufEnter', {
   group = vim.api.nvim_create_augroup('DraftSkkKeymap', { clear = true }),
@@ -128,5 +132,110 @@ vim.api.nvim_create_autocmd('BufEnter', {
     -- 全文をクリップボードへ切り取り（normal に留まる）
     vim.keymap.set('n', '<Leader>j', 'ggdG',
       { buffer = ev.buf, desc = '全文をクリップボードへ切り取り' })
+  end,
+})
+
+-- -------------------------------------------------------
+-- :DraftNew — 下書きバッファを自動採番で開く
+-- -------------------------------------------------------
+-- 割り込みタスク（メール作成中のチャット返信等）のたびに名前を考える負担を無くすため、
+-- 引数なしで cwd に draft_skk.md → draft_skk_2.md → draft_skk_3.md … と空き番号を探して開く。
+-- 中身が空（空行のみ）の既存 draft があれば新規作成せずそれを再利用する。
+-- <Leader>j（全文切り取り）後のバッファは空になるため、使い終わった下書きが自然に
+-- リサイクルされ、採番ファイルが無限に増えない。
+
+-- draft ファイル名から採番番号を得る（draft_skk.md=1、draft_skk_2.md=2 …）。
+-- 数値でないサフィックス（draft_skk_mail.md 等の手動命名）は nil を返して
+-- 採番・再利用の管理外にする（意図して付けた名前の中身を勝手に再利用先にしないため）
+local function draft_number(name)
+  if name == 'draft_skk.md' then return 1 end
+  local n = name:match('^draft_skk_(%d+)%.md$')
+  return n and tonumber(n) or nil
+end
+
+-- 行リストが「空（空行のみ）」かどうか
+local function lines_are_blank(lines)
+  for _, line in ipairs(lines) do
+    if not line:match('^%s*$') then return false end
+  end
+  return true
+end
+
+vim.api.nvim_create_user_command('DraftNew', function()
+  -- 候補は cwd 直下の draft_skk*.md。ディスク上のファイルに加えて読み込み済みバッファも
+  -- 走査する（:DraftNew 直後の未保存バッファはディスクに無く、見ないと番号が衝突するため）
+  local drafts = {}  -- 番号 → { path = ディスク上の相対パス, buf = バッファ番号 }
+
+  for _, path in ipairs(vim.fn.glob('draft_skk*.md', false, true)) do
+    local num = draft_number(vim.fn.fnamemodify(path, ':t'))
+    if num then drafts[num] = { path = path } end
+  end
+
+  local cwd = vim.fn.getcwd()
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    local name = vim.api.nvim_buf_get_name(buf)
+    if vim.api.nvim_buf_is_loaded(buf) and name ~= ''
+        and vim.fn.fnamemodify(name, ':p:h') == cwd then
+      local num = draft_number(vim.fn.fnamemodify(name, ':t'))
+      if num then
+        drafts[num] = drafts[num] or {}
+        drafts[num].buf = buf
+      end
+    end
+  end
+
+  -- 再利用判定: 番号の小さい順に、空（空行のみ）の draft を探す。
+  -- バッファが読み込み済みならバッファ内容を優先する（<Leader>j 切り取り直後は
+  -- 未保存でバッファだけ空、というケースをディスク内容より正しく反映するため）
+  local numbers = vim.tbl_keys(drafts)
+  table.sort(numbers)
+  for _, num in ipairs(numbers) do
+    local d = drafts[num]
+    local blank
+    if d.buf then
+      blank = lines_are_blank(vim.api.nvim_buf_get_lines(d.buf, 0, -1, false))
+    else
+      blank = lines_are_blank(vim.fn.readfile(d.path))
+    end
+    if blank then
+      if d.buf then
+        -- 読み込み済みバッファはそのまま切り替える（:edit だと未保存の空状態へ
+        -- ディスク内容が絡む再読込・E37 の懸念があるため API で直接移動する）
+        vim.api.nvim_set_current_buf(d.buf)
+      else
+        vim.cmd.edit(d.path)
+      end
+      return
+    end
+  end
+
+  -- 空きが無ければ最小の未使用番号で新規作成
+  local n = 1
+  while drafts[n] do n = n + 1 end
+  vim.cmd.edit(n == 1 and 'draft_skk.md' or ('draft_skk_%d.md'):format(n))
+end, { desc = '下書きバッファを自動採番で開く（空 draft があれば再利用）' })
+
+-- -------------------------------------------------------
+-- draft_skk*.md: 起動時に同ディレクトリの書きかけ draft を復元
+-- -------------------------------------------------------
+-- draft の切り替えはバッファリスト（<Leader>f = Pick buffers）経由で行うため、
+-- `nvim ./draft_skk.md` で起動した時点で、前回書きかけのまま残した draft も
+-- リストに載っていてほしい。VimEnter で「起動バッファが draft のとき」だけ、
+-- 同じディレクトリの空でない draft_skk*.md を :badd で追加する。
+--   - 空 draft を載せないのは、リストのノイズになるだけで、必要になれば
+--     :DraftNew が勝手に再利用するため
+--   - draft 以外のファイルで起動した通常の編集作業では何もしない
+--   - :badd は読み込みを遅延したままリストへ登録するだけなので起動は重くならない
+vim.api.nvim_create_autocmd('VimEnter', {
+  group = vim.api.nvim_create_augroup('DraftSkkRestore', { clear = true }),
+  callback = function()
+    if not is_draft_skk(0) then return end
+    local dir = vim.fn.expand('%:p:h')
+    for _, path in ipairs(vim.fn.glob(dir .. '/draft_skk*.md', false, true)) do
+      -- 起動引数で開いたファイル自身（既にバッファが存在する）は除外する
+      if vim.fn.bufexists(path) == 0 and not lines_are_blank(vim.fn.readfile(path)) then
+        vim.cmd('badd ' .. vim.fn.fnameescape(path))
+      end
+    end
   end,
 })
