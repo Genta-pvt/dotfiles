@@ -57,12 +57,31 @@ return {
   -- https://github.com/jakewvincent/mkdnflow.nvim
   -- リスト自動継続・チェックボックストグル・リンク化・見出しレベル操作。
   -- ft='markdown' で遅延ロードし、設定・キーマップは config.markdown に集約する。
-  -- 自動マップは無効化し必要分だけ明示登録する方針（理由は config/markdown.lua のコメント参照）。
+  -- config/markdown.lua は冗長だったので廃止。基本的には自動マップを活用する方針とする。(暗黙的なキーマップ登録を是とする)
   {
     'jakewvincent/mkdnflow.nvim',
     ft     = 'markdown',
     config = function()
-      require('config.markdown')
+      require('mkdnflow').setup({
+        -- ノートブックのルートをpkm_home.mdというファイルを起点とし、そこからパスを解決する設定。
+        path_resolution = {
+          primary = 'root',
+          root_marker = 'pkm_home.md'
+        },
+        mappings = {
+          -- デフォルトだと<C-Space>(windows Terminal の quake出し入れ)なのでリマップ
+          -- 本当はkeymap.luaに集約した方が良いかも?
+          MkdnToggleToDo = { { 'n', 'v' }, '<Leader>c' },
+        },
+        links = {
+          -- デフォだとリンク自動作成の時に勝手に日付入れちゃうから無効化。
+          transform_on_create = false,
+          -- ディレクトリへのリンクをe /exp/path 扱いにする。これによってディレクトリへのリンクを開いた時にファイルエクスプローラーが起動する。
+          edit_dirs = true,
+        }
+      })
+      -- 以下はキーマップを原則明示的に指定すべしとしていた時の名残。その内消して良い
+      -- require('config.markdown')
     end,
   },
 
@@ -101,4 +120,18 @@ return {
   -- SKK 無効時のネイティブ <C-p> 補完と同じ pum 機構のため操作感が揃う
   { 'Shougo/ddc-ui-native' },
 
+  -- -------------------------------------------------------
+  -- markdown プレビュー
+  -- -------------------------------------------------------
+
+  -- https://github.com/toppair/peek.nvim
+  {
+    "toppair/peek.nvim",
+    event = { "VeryLazy" },
+    build = "deno task --quiet build:fast",
+    config = function()
+      require('config.peek')
+    end,
+  },
 }
+
