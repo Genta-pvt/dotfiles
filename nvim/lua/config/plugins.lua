@@ -69,9 +69,12 @@ return {
           root_marker = 'pkm_home.md'
         },
         mappings = {
-          -- デフォルトだと<C-Space>(windows Terminal の quake出し入れ)なのでリマップ
           -- 本当はkeymap.luaに集約した方が良いかも?
-          MkdnToggleToDo = { { 'n', 'v' }, '<Leader>c' },
+          MkdnToggleToDo = { { 'n', 'v' }, '<Leader>c' }, -- デフォルトだと<C-Space>(windows Terminal の quake出し入れ)なのでリマップ
+          MkdnFoldSection = false, -- バッファリストの表示<Leader>fと被るので無効化
+          MkdnUnfoldSection = false, -- 上を無効化したので道連れで無効化
+          MkdnNextLink = { 'n', '<C-n>' }, -- <C-i>(<Tab>) と競合
+          MkdnPrevLink = { 'n', '<C-p>' }, -- 上の道連れ
         },
         links = {
           -- デフォだとリンク自動作成の時に勝手に日付入れちゃうから無効化。
