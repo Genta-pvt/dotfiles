@@ -11,5 +11,6 @@
   "skkeleton": { "branch": "main", "commit": "71178b6debd9f1b3bb00abfd865ca642e82e24c7" },
   "skkeleton-henkan-highlight": { "branch": "main", "commit": "361ca90537e9cf7cd404899a4ed0bbef03124fd8" },
   "skkeleton-state-popup": { "branch": "main", "commit": "e09dcbf85073df53c9c8d960f6160818572c1397" },
+  "tokyonight.nvim": { "branch": "main", "commit": "cdc07ac78467a233fd62c493de29a17e0cf2b2b6" },
   "vimdoc-ja": { "branch": "master", "commit": "800d34c52ab699cb4452e274ecbf9ff0b774626b" }
 }

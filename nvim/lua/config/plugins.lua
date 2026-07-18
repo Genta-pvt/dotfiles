@@ -190,6 +190,29 @@ return {
         },
       })
     end
+  },
+
+  -- -------------------------------------------------------
+  -- カラースキーム
+  -- -------------------------------------------------------
+
+  -- https://github.com/stevearc/oil.nvim
+  {
+    "folke/tokyonight.nvim",
+    lazy = false,
+    priority = 1000, -- 他のUIプラグインより先に読み込ませる
+    opts = {
+      style = "moon",
+      transparent = true,           -- 背景色を無しに
+      styles = {
+        sidebars = "transparent",
+        floats = "transparent",
+      },
+    },
+    config = function(_, opts)
+      require("tokyonight").setup(opts)
+      vim.cmd.colorscheme("tokyonight")
+    end,
   }
 }
 

@@ -69,8 +69,8 @@ vim.opt.termguicolors = true -- 24ビットカラーを有効化
 -- ネイティブ <C-p> 補完も同じ pum 機構のため同様に 8 行へ揃う。
 vim.opt.pumheight = 8
 
--- カラースキームを設定（mini.nvim が提供する minischeme を使用）
-vim.cmd.colorscheme('minischeme')
+-- カラースキームを設定（folkeの提供する'tokyonight'を使う）
+vim.cmd.colorscheme('tokyonight')
 
 -- -------------------------------------------------------
 -- ステータスライン（未保存バッファを色で強調）
