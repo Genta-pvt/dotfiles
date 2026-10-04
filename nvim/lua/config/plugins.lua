@@ -98,7 +98,19 @@ return {
 
   -- https://github.com/vim-skk/skkeleton
   -- SKK 日本語入力エンジン。設定は config.skkeleton で行う
-  { 'vim-skk/skkeleton' },
+  {
+    'vim-skk/skkeleton',
+    init = function()
+      -- 初回 SKK 有効化時の初期化待ちを避けるため、denops が skkeleton を
+      -- 読み込み終えた時点（DenopsPluginPost）で裏で初期化を済ませておく
+      vim.api.nvim_create_autocmd('User', {
+        pattern = 'DenopsPluginPost:skkeleton',
+        callback = function()
+          vim.fn['skkeleton#initialize']()
+        end,
+      })
+    end,
+  },
 
   -- https://github.com/NI57721/skkeleton-henkan-highlight
   -- 変換中（▽/▼ステート）の入力領域を extmark でハイライト表示する。
