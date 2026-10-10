@@ -104,7 +104,7 @@ vim.api.nvim_create_autocmd('User', {
 -- 注意: プラグイン側に hlexists() ガードがあり、下記グループが未定義だとエラーも出さず
 -- 何もしない。この定義が事実上の有効化スイッチになっている。
 -- ▽相当（読み入力中）は下線のみ、▼相当（候補選択中）は下線+反転で区別する。
--- 色を持たせず属性だけにするのは、colorscheme（minischeme）の配色を壊さないため。
+-- 色を持たせず属性だけにするのは、colorscheme（tokyonight）の配色を壊さないため。
 local function set_henkan_hl()
   vim.api.nvim_set_hl(0, 'SkkeletonHenkan',       { underline = true })
   vim.api.nvim_set_hl(0, 'SkkeletonHenkanSelect', { underline = true, reverse = true })
