@@ -26,13 +26,13 @@ return {
   --   mini.jump       : f/t/F/T を行跨ぎ化（; で行跨ぎ repeat。, は keymaps.lua で補完）
   --   mini.pairs      : 括弧・引用符の自動ペア補完（( [ { " ' ` の入力で閉じを自動挿入）
   --   mini.surround   : 囲み（括弧・引用符・タグ）の追加/削除/置換/検索/強調
-  --   minischeme      : カラースキーム（options.lua で colorscheme 指定）
+  -- カラースキームは同梱の minischeme から tokyonight.nvim へ移行済み（下部のエントリ参照）
   -- 未保存バッファの強調は mini.tabline をやめ、statusline の色で表現する
   -- （画面行を消費せず、ウィンドウ個別に未保存を示せる。options.lua / autocmds.lua 参照）
   {
     'echasnovski/mini.nvim',
     version = false,
-    lazy    = false,  -- 起動時に同期ロード（options.lua の colorscheme 'minischeme' が mini.nvim 同梱で、設定適用前にロード済みが必要）
+    lazy    = false,  -- 起動時に同期ロード（config.session のセッションコマンド等を起動直後から使えるようにするため）
     config = function()
       require('mini.trailspace').setup()
       require('mini.pick').setup()
@@ -56,7 +56,7 @@ return {
 
   -- https://github.com/jakewvincent/mkdnflow.nvim
   -- リスト自動継続・チェックボックストグル・リンク化・見出しレベル操作。
-  -- ft='markdown' で遅延ロードし、設定・キーマップは config.markdown に集約する。
+  -- ft='markdown' で遅延ロードし、設定はこのエントリ内に記述する。
   -- config/markdown.lua は冗長だったので廃止。基本的には自動マップを活用する方針とする。(暗黙的なキーマップ登録を是とする)
   {
     'jakewvincent/mkdnflow.nvim',
@@ -208,7 +208,7 @@ return {
   -- カラースキーム
   -- -------------------------------------------------------
 
-  -- https://github.com/stevearc/oil.nvim
+  -- https://github.com/folke/tokyonight.nvim
   {
     "folke/tokyonight.nvim",
     lazy = false,
