@@ -15,3 +15,4 @@ draft_skk*.md
 
 # Claude Code 用のプロジェクト指示（追跡対象から除外）
 CLAUDE.md
+.claude/rules/
