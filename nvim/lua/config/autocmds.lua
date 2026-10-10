@@ -60,11 +60,11 @@ vim.api.nvim_create_autocmd('FileType', {
 -- ステータスライン: 未保存フラグ [+] だけを明るい色で強調
 -- -------------------------------------------------------
 -- options.lua の statusline が未保存フラグ %m を %#StatusLineModified#…%* で囲み、
--- [+] 部分だけをこの色にする。バー本体（StatusLine の明るい背景）は無改変＝非破壊。
+-- [+] 部分だけをこの色にする。バー本体（StatusLine の背景）は無改変＝非破壊。
 -- 色をハードコードすると colorscheme 変更時に浮くため、既存グループへ link する。
--- Title（minischeme ではシアン #42f7ff）へ寄せるのは、背景を持たず鮮やかな前景色で、
--- バーの暖色系の通常文字色（#d5dc81 淡い黄緑）と最も対照的なため [+] が強く目立つ。
--- WarningMsg 等の暖色は通常文字色と同系で目立ちにくかったので、寒色のシアンに変更した。
+-- Title へ寄せるのは、背景を持たない鮮やかな前景色で、バーの通常文字色と対照的になり
+-- [+] が目立つため（旧カラースキーム minischeme 時代に、WarningMsg 等の暖色は
+-- 通常文字色と同系で目立ちにくかったことから選定した）。
 -- ColorScheme イベントで当て直すのは、colorscheme 側が同名グループを再定義して
 -- link を上書きするケース（draft_skk.md の透明化解除での再読み込み含む）に備えるため。
 local function set_statusline_modified_hl()

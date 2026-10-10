@@ -127,7 +127,15 @@ vim.opt.sessionoptions:remove('buffers')
 -- 注意: 編集履歴がディスクに残るため、秘匿情報を一時編集する際は留意する
 vim.opt.undofile = true
 
+-- -------------------------------------------------------
+-- シェル（:! / system() / :make 等で使う内部シェル）
+-- -------------------------------------------------------
 
+-- 既定の cmd.exe ではなく PowerShell を使う（:h shell-powershell 準拠）。
+-- -NoLogo -NoProfile: 起動バナーとプロファイル読み込みを省き、起動を速くし副作用を避ける。
+-- shellquote / shellxquote を空にするのは、cmd.exe 向けの引用符付与が PowerShell では不要なため。
+-- shellpipe / shellredir: Windows PowerShell 5.x の Out-File（> リダイレクト）は既定で
+-- UTF-16LE を書き出し、Neovim が :make の結果ファイル等を読めないため UTF-8 を明示する。
 vim.opt.shell = "powershell"
 vim.opt.shellcmdflag = "-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command"
 vim.opt.shellquote = ""
